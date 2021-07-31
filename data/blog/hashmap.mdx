@@ -1,0 +1,182 @@
+---
+title: HashMap Implementation
+date: '2021-02-18'
+tags: ['CP', 'Data Structures', 'Java']
+draft: false
+summary: 'Wondering how HashMaps/Dictionaries are implemented internally? Read more to find out!'
+---
+# Introduction
+
+Welcome back to another post! Today, we will be learning about how HashMaps work internally and a potential way to implement them. Before I start, I will explain what a HashMap is. A HashMap is a data structure that stores Key-Value Pairs. For example Key: $12$, Value: $213$. Pairs like those. Now, these pairs can be anything, it can be a String - String pair, it can be an Integer - String pair, etc. But the most important characteristic that makes HashMap unique from other data structures is its runtime. A HashMap has 4 main functions, `get()`, `put()`, `remove()`, and `contains()` all of which runs in an average of constant time, $\mathcal O(1)$. Note that I did not say constant time, I said an average of constant time. At first, this might seem suspicious as usually the contains function is a linear time function; however after I explain each individual method, you should be able to understand how HashMaps accomplish this.
+
+## Quick Note
+
+Before I go over how the HashMap works internally, I would like to show you the implementation for the Key and Value classes. Since the HashMap stores Key-Value pairs, there will be a Key class and a Value class. Keep in mind that our HashMap will be able to handle any type for its Key and Value; therefore, I will be using generics in the implementation. Furthermore, the Key and Value will be combined into a single class called Entry for our type for the LinkedList. If you aren't familiar with generics I highly suggest you google it and read up on it. It will be very commonly used in data structure implementations. Below is the commented code for the Entry class.
+
+
+```java
+public class Entry <K, V> { //K and V are generics where they are the type the the user inputs when instaniating their HashMap
+    //Instance variables
+    public K key;
+    public V value;
+    //Constructors
+    public Entry(K k, V v){
+        key = k;
+        value = v;
+    }
+    //toString for printing and debugging
+    public String toString(){
+        return key + " = " + value;
+    }
+}
+```
+
+# The `put()` Method
+
+The `put()` method is arguably the core function for a HashMap for two reasons. First, if you can't insert elements into a data structure then that structure is basically pointless. Second, if you can understand how this function works internally, then every other function in the HashMap will make sense because every other function is just a modification of what happens in a `put()` method to fit their own needs. With that in mind, we can get started.
+
+The basic idea of a HashMap is that the operations are all an average of constant time, now this can only be achieved if the way you insert items into the data structure is correct. The insertion allows us to set up the data structure for future operations. This is the reason the `put()` method is essential in the understanding of a HashMap. Now, I want you to think about how to get elements with constant time. If you thought about having its unique index in an array, then you are correct. The idea is to give every key its own unique value and put them into an array, this way, if you want to get the value or check whether the key is in the map, you just check whether that index contains that key or not. You might be wondering how we might achieve that. The answer is using the `hashcode()` method that is built-in for Java. If you aren't using Java, there are tons of `hashcode()` methods that other programmers have coded which you can use in this implementation. However, even with the `hashcode()` method, we will still run into some issues. Since `hashcode()` only returns an integer, sometimes, there will still be duplicating hash values. There is an easy way of solving this issue, all we need to do is to make the array hold lists of Key-Value Pairs. I understand that this isn't constant time; however, HashMap has an average constant time, and hash collisions won't occur very often. Therefore, even though we might have to traverse through multiple values before finding the key, it will still have an average constant time. To summarize what we just went over: First, we will create an array of LinkedLists (to be explained later on), then we will hash the keys and insert them in the proper array cells. If there is a hash collision, then we will just add on to the list at that array index. There's just one problem left to solve. If we keep accumulating the Key-Value pairs into the lists, then it will become slower and slower. Therefore, it is optimal to resize the array every once in a while. However, there's a catch. Since you are modding by the array's size and each object has a relatively unique hashcode, if you just make a copy of the existing array and make it bigger, the existing hashcodes will be messed up. To solve this, all we need to do is call the `put()` method for every existing key-value pair and insert it back into the new array which will already be bigger. Because the resize function will be rarely called, the time complexity is still constant.
+
+# Why Use LinkedList?
+
+The reason for using LinkedList in the HashMap implementation is because it has an $\mathcal O(1)$ insertion and $\mathcal O(1)$ deletion. I will explain LinkedList very shallowly for now, but it's best for you to do some research on that data structure as it is in fact a confusing one. A LinkedList consists of Nodes that have a next instance variable that will point to the next node. I've attached an illustration for a LinkedList below. Since the nodes contain the next variable, we will be able to modify the elements in the LinkedList by utilizing that variable. To insert, we just link the new node's next to the head of the list. To delete, we just need to link the node one before the target delete node's next to be the target delete node's next. Now that might have been a little confusing which is why I drew a picture and why you should do some research yourself. I hope that you were able to tell from my explanation that a LinkedList can do $\mathcal O(1)$ insertion and $\mathcal O(1)$ deletion. For this blog post, I won't be implementing my own LinkedList because that's not the goal; therefore, I will be using Java's built-in LinkedList. Of course, that is a little slower but the average will still be constant. Below are the functions we just went through along with the `put()` method right underneath.
+
+![LinkedList](/static/images/LinkedList.svg)
+
+```java
+//Just the beginning of the class in case you need to refer back to this in this post.
+public class HashMapImp< K, V > { //Use of generics
+    LinkedList< Entry< K, V > >[] hashMap = new LinkedList[2]; //Array of LinkedLists to store Key-Value Pairs.
+    int size = 0; //At the beginning, the size is 0
+    public HashMapImp(){ //Empty Constructor
+
+    }
+    public void resize(){
+        LinkedList< Entry< K, V > >[] oldHashMap = hashMap; //We need to save the existing data to re-insert later
+        hashMap = new LinkedList[size * 2]; //Resizing the array
+        size = 0; //Resetting size because put() adds to size already
+
+        for (int i = 0; i < oldHashMap.length; i++) { //Looping through existing keys
+            if(oldHashMap[i] == null) continue;
+            for(Entry< K, V > entry : oldHashMap[i]){
+                put(entry.key, entry.value); //Using the build put() method to re-insert into the bigger array
+            }
+        }
+    }
+    public int getIndex(K key){
+        return key.hashCode(); //Returns the hashCode of the Key. hashCode() is a built-in Java function
+    }
+
+    public int size(){
+        return size; //Returns the size variable, bascially the size of the list
+    }
+}
+```
+
+Below is the `put()` method implementation
+
+```java
+public void put(K key, V value){ //K and V because it's the user's specified type
+    if(size >= hashMap.length){
+        resize();
+    }
+
+    int ix = getIndex(key) % hashMap.length; //Getting the index to insert the pair into the array
+
+    if(hashMap[ix] == null){ //If the spot is null, that means there's no existing keys at that cell
+        hashMap[ix] = new LinkedList<>(); //Create the LinkedList
+        hashMap[ix].add(new Entry(key, value)); //Add the entry to the LinkedList at that cell
+        size++; //Increment the size
+        return;
+    }
+    else{ //Maybe a hash collision or a same key so we need to replace the existing value
+        for(Entry< K, V > entry : hashMap[ix]){ //Loop through entries to see if there is a existing key that is the same
+            if(entry.key.equals(key)){ //Replaces the value corresponding to that key
+                entry.value = value;
+                return;
+            }
+        }
+	//Does not replace, simply adds it to the end
+        hashMap[ix].add(new Entry< >(key, value));
+        size++;
+        return;
+    }
+}
+```
+
+# The `get()`/`containsKey()` Method
+
+With the `put()` method finished, all the heavy lifting is done. The `get()` method is relatively simple, we only need to get the index of the array, then loop through the existing key(s) to check whether the key is there. If it is, then return the value at the key. If not, then we will return null. Notice the header of this section is `get()`/`containsKey()`, this is because they have basically the same code and concept. The only difference between these two functions is that for `containsKey()`, if the key is there, return true, if not, return false. Below is the implementation of these two functions.
+
+
+```java
+public V get(K key){
+    int ix = getIndex(key) % hashMap.length; //Gets the index of where the key could POTENTIALLY be
+
+    if(hashMap[ix] == null) return null; //If that position doesn't have anything, then the key isn't in the hashmap
+
+    for(Entry< K, V > entry : hashMap[ix]){ //Looping through keys at that index
+        if(entry.key.equals(key)){ //If that is the key, then return its value
+            return entry.value;
+        }
+    }
+    //Key is not in the hashmap, return null
+    return null;
+}
+
+//Below is the containsKey() method. This is basically the same idea, but instead of returning the value, we will return a boolean.
+//I won't add comments because I think it's pretty self-explanatory
+public boolean containsKey(K key){
+    if(key == null) return false;
+
+    int ix = getIndex(key) % hashMap.length;
+
+    if(hashMap[ix] == null){
+        return false;
+    }
+
+    for(Entry< K, V > entry : hashMap[ix]){
+        if(entry.key.equals(key)){
+            return true;
+        }
+    }
+    return false;
+}
+```
+
+The `remove()` Method
+
+
+With `get()` and `put()` down, we can now tackle `remove()`. The `remove()` function is what it means, it removes the Key-Value Pair given the key. To accomplish this, we will use the same concept as `get()` where we first find the Entry to delete, then we just use the built-in delete function and pass in this Entry to delete it from our HashMap. Make sure to stick around until the end for some tips and improvements as using the built-in function is not the most optimal for runtime. Below is the implementation for the `remove()` method.
+
+```java
+public void remove(K key){
+
+    //For this first part, you can just call the containsKey() method written earlier, but I decided to do this just for clarity
+    if(key == null) return; //If key is null, no need to delete a null key
+
+    int ix = getIndex(key) % hashMap.length; //Getting the index of where that Key could POTENTIALLY be
+
+    if(hashMap[ix] == null) return; //If that position doesn't contain the key, then the key is not in the hashmap
+
+
+
+    Entry< K, V > toRemove = null; //Creating the Entry that will hold the Entry to remove
+
+    for (Entry< K, V > entry : hashMap[ix]){ //Looping through the Entries at that index
+        if(entry.key.equals(key)){ //If it is the key, then set toRemove to that Entry and break because all keys are unique
+            toRemove = entry;
+            break;
+        }
+    }
+
+    if(toRemove == null) return; //If toRemove is null, that means we didn't find the key so it's not in the hashmap
+
+    hashMap[ix].remove(toRemove); //Removing that entry from the LinkedList at that index
+    size--; //Subtracts size
+}
+```
+
+# Conclusion:
+
+That was it! Of course, this is just one way to implement a hashmap. There are many different ways to do it, but the main idea is the same. To improve this implementation even further, you can try designing your own LinkedList class. Java's built-in LinkedList class has some extra features that are not needed and weigh down the runtime. You can also replace the built-in `.add()` and `.remove()` with different code by manipulating the LinkedList's next instance variable. Refer to the "Why Use LinkedList?" section for a refresher. If you would like a simpler explanation without the use of generics, you can check out this video I made [here](https://youtu.be/_Q-eNqTOxlE). If you have any questions, make sure to comment down below. Happy Coding!
