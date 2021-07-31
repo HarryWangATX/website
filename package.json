@@ -1,7 +1,7 @@
 {
-  "name": "tailwind-nextjs-starter-blog",
-  "version": "1",
-  "private": true,
+  "name": "harry-blog",
+  "version": "1.0.0",
+  "private": false,
   "scripts": {
     "start": "next-remote-watch ./data",
     "dev": "next dev",
