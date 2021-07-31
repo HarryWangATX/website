@@ -138,7 +138,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
               }} />
       </div>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className={"w-full max-w-5xl mx-auto min-h-screen p-20 flex flex-col head head-pad items-center"}>
+        <div className={"w-full max-w-5xl mx-auto min-h-screen p-20 flex flex-col justify-center items-center"}>
           <div className={"w-full self-start text-dark-900 dark:text-gray-50"}>
             <h2
                 className={
