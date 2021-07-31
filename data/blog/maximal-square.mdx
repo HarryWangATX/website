@@ -1,0 +1,54 @@
+---
+title: Maximal Square Problem
+date: '2020-08-16'
+tags: ['CP', 'DP', 'Algorithm', 'Java']
+draft: false
+summary: 'Stuck on the classical maximal square problem? Read this tutorial to find out the solution!'
+---
+
+# Introduction
+Some time ago, I was doing some algorithmic problems on LeetCode and I happened to come across this problem: [Maximal Square](https://leetcode.com/problems/maximal-square/). Just from looking at it, you can tell that it is a Dynamic Programming question because of its optimal nature. However, it requires a little further thinking to find the solution. I'll discuss the solution in the next section; meanwhile, please try the problem before proceeding!
+
+
+# Analysis
+Welcome Back! Now I'm going to explain the essence of this problem in depth. To start, we need to understand DP. DP is a way of solving problems where you transform the given problem into subproblems, then you focus on solving the subproblems to finish out. This is the standard definition, but I think it might be a little ambiguous. Therefore, I'll give my own definition which, in my opinion, will be a little better. If you have seen any examples of DP, you'll know that you are reusing data calculated earlier on. This leads to my interpretation which is to think in terms of reusing data. By thinking this way, you'll(at least I) find the problem more straightforward to solve. All in all, that is what DP is from a standard perspective and from my perspective. If you feel like you got a little hint, then I encourage you to go back and try the problem!
+
+
+Now that we are on the same page with DP, we can start with the explanation. Previously, I mentioned subproblem as a focus for DP. If you thought about this question, you'll realize that the subproblem is just finding the maximum side length of the square at index $i, j$.  With this, let's think about how that can be accomplished. To answer this, we need to think about the properties of a square(all four sides are EQUAL!).  Once you connect this property with the subproblem, I think the problem becomes quite obvious.
+
+
+In order for me to continue explaining this question, we first need to define our variables. I will have a 2D array that stores the maximum side length of a square at index $i, j$ called $\texttt{dp}$. Therefore, at $\texttt{dp}[i][j]$, all we need to do is the take the minimum of the cells above, to the right, and above and to the right. This will give us the guaranteed maximum side length at index $i, j$. Once you do this for the whole grid, take the maximum side length and square that to obtain the final result. Good Job! You finished a pretty difficult question!
+
+![Maximal Square](/static/images/MaximalSquarePlain.svg)
+
+The first image is the initial state of the 2D array. As you can see, the largest square is the $2\times2$.The second image is the DP 2D array.  The maximum side is 2 which is the maximum side length of the largest square.  (Note: there are two $2\times2$ squares in the input array; therefore, there are 2 cells with 2 in the DP array). Below is my implementation of DP for Maximal Squares. If you want a video explanation, go check out [my video](https://youtu.be/XokEe1aq5j0) on this question!
+
+
+```java
+class Solution {
+    public int maximalSquare(char[][] matrix) {
+        if(matrix == null ||matrix.length == 0 ) return 0;
+        int m = matrix.length;
+        int n = matrix[0].length;
+
+        //dp array using m+1 and n+1 to accout for index out of bound exceptions
+        int[][] dp = new int[m+1][n+1];
+        int maxLen = 0;
+        for(int i = 1; i <= m; i++){
+            for(int j = 1 ; j <= n ; j++){
+                if(matrix[i-1][j-1] == '1'){
+                    //getting the minimum of the three cells and adding one
+                    dp[i][j] = Math.min(dp[i-1][j], Math.min(dp[i][j-1], dp[i-1][j-1])) + 1;
+                    //maxing the max side length as we fill in the values to save time
+                    maxLen = Math.max(maxLen, dp[i][j]);
+                }
+                else{
+                    dp[i][j] = 0;
+                }
+            }
+        }
+        //squaring the result at the end
+        return maxLen * maxLen;
+    }
+}
+```
