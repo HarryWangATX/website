@@ -121,7 +121,6 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                               "size": 40,
                               "duration": 2,
                               "opacity": 8,
-                              "speed": 3
                           },
                           "repulse": {
                               "distance": 100,
