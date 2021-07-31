@@ -1,6 +1,6 @@
 ---
 name: Qi Wang
-avatar: /static/images/avatar.png
+avatar: /static/images/deadpool.jpg
 occupation: Programmer
 company: Westlake High School
 email: randomCoder12@gmail.com

@@ -7,7 +7,7 @@ const siteMetadata = {
   siteUrl: 'https://harrycodes.com',
   siteRepo: 'https://github.com/HarryWangATX/website',
   siteLogo: '/static/images/logo.png',
-  image: '/static/images/avatar.png',
+  image: '/static/images/deadpool.jpg',
   socialBanner: '/static/images/twitter-card.png',
   email: 'randomCoder12@gmail.com',
   github: 'https://github.com/HarryWangATX',
