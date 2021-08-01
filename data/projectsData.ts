@@ -14,9 +14,9 @@ const projectsData = [
   },
   {
     title: 'Westlake Competitive Programming Tournament',
-    description: `A competitive programming tournament written by Neo Wang and I for our school. Over 25 problems and 10+ teams participated in the tournament, which was also sponsored by Wolfram Alpha Research!`,
+    description: `A competitive programming tournament written by Neo Wang and I for our school. Over 25 problems and 10+ teams participated in the tournament, which was also sponsored by Wolfram Research!`,
     imgSrc: '/static/images/whs-cpt.jpg',
-    href: 'https://www.hackerrank.com/contests/whs-cpt/challenges'
+    href: 'https://whs-resources.github.io/whs-cpt-public/'
   },
   {
     title: 'Leetcode Problem Set Solutions',
