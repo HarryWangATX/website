@@ -138,8 +138,8 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
               }} />
       </div>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className={"w-full max-w-5xl mx-auto min-h-screen p-20 flex flex-col justify-center items-center"}>
-          <div className={"w-full self-start text-dark-900 dark:text-gray-50"}>
+        <div className={"w-full max-w-5xl mx-auto flex flex-col items-center"} style={{padding: "0 5rem 0 5rem", minHeight: '80vh'}}>
+          <div className={"w-full self-start text-dark-900 dark:text-gray-50"} style={{position:"relative", top:"50%"}}>
             <h2
                 className={
                   "translate-x-1 text-lg sm:text-xl md:text-2xl 2xl:text-3xl font-medium"
@@ -149,7 +149,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
             </h2>
             <h1
                 className={
-                  "text-3xl sm:text-5xl md:text-6xl 2xl:text-8xl font-bold"
+                  "text-3xl sm:text-6xl md:text-7xl 2xl:text-8xl font-bold"
                 }
             >
               <span
@@ -172,13 +172,13 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
               </Typing>
             </h3>
           </div>
-          <Link href={"#latest"}>
+          <Link href={"#latest"} style={{display: "flex", justifyContent: "center"}}>
               <a onClick={(e) => {
                   e.preventDefault();
                   postsRef.current.scrollIntoView({ behavior: "smooth" });
-              }} className={"focus-invisible absolute animate-bounce"} style={{top: "90%"}}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="2rem" height="auto" fill="currentColor"
-                       className="bi bi-arrow-down-circle" viewBox="0 0 16 100">
+              }} className={"focus-invisible absolute animate-bounce"} style={{top: "85%"}}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="35px" height="auto" fill="currentColor"
+                       className="bi bi-arrow-down-circle" viewBox="0 0 16 16">
                       <path fillRule={"evenodd"}
                             d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
                   </svg>
