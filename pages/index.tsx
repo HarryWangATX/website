@@ -37,13 +37,13 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                           }
                       },
                       "color": {
-                          "value": "#ffffff"
+                          "value": "#808080"
                       },
                       "shape": {
                           "type": "circle",
                           "stroke": {
                               "width": 2,
-                              "color": "#000000"
+                              "color": "#808080"
                           },
                           "polygon": {
                               "nb_sides": 4
