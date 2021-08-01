@@ -176,7 +176,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
               <a onClick={(e) => {
                   e.preventDefault();
                   postsRef.current.scrollIntoView({ behavior: "smooth" });
-              }} className={"focus-invisible absolute animate-bounce"} style={{top: "85%"}}>
+              }} className={"focus-invisible absolute animate-bounce"} style={{top: "90%"}}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="35px" height="auto" fill="currentColor"
                        className="bi bi-arrow-down-circle" viewBox="0 0 16 16">
                       <path fillRule={"evenodd"}
