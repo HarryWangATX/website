@@ -4,7 +4,7 @@ const siteMetadata = {
   headerTitle: "Harry's Blog",
   description: "Harry's blog about whatever he writes!",
   language: 'en-us',
-  siteUrl: 'https://harrycodes.com',
+  siteUrl: 'https://www.harrycodes.com',
   siteRepo: 'https://github.com/HarryWangATX/website',
   siteLogo: '/static/images/logo.png',
   image: '/static/images/deadpool.jpg',

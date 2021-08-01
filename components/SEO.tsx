@@ -22,6 +22,8 @@ export const PageSeo = ({ title, description }: PageSeoProps) => {
       <meta property="og:description" content={description} />
       <meta property="og:title" content={title} />
       <meta property="og:image" content={`${siteMetadata.siteUrl}${siteMetadata.socialBanner}`} />
+      <meta property="og:image:width" content="2000" />
+      <meta property="og:image:height" content="1125" />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content={siteMetadata.twitter} />
       <meta name="twitter:title" content={title} />
