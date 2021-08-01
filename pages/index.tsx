@@ -19,7 +19,7 @@ export const getStaticProps: GetStaticProps<{ posts: PostFrontMatter[] }> = asyn
 }
 
 export default function Home({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
-    const postsRef = React.useRef<HTMLDivElement>();
+    const postsRef = React.useRef<HTMLHeadingElement>();
 
   // @ts-ignore
     return (
@@ -172,9 +172,21 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
               </Typing>
             </h3>
           </div>
+          <Link href={"#latest"}>
+              <a onClick={(e) => {
+                  e.preventDefault();
+                  postsRef.current.scrollIntoView({ behavior: "smooth" });
+              }} className={"focus-invisible absolute animate-bounce"} style={{top: "90%"}}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="2rem" height="auto" fill="currentColor"
+                       className="bi bi-arrow-down-circle" viewBox="0 0 16 100">
+                      <path fill-rule="evenodd"
+                            d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
+                  </svg>
+              </a>
+          </Link>
         </div>
         <div className="pt-6 pb-8 space-y-2 md:space-y-5">
-          <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
+          <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14" ref={postsRef}>
             Latest
           </h1>
           <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
