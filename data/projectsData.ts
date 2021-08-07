@@ -23,7 +23,13 @@ const projectsData = [
     description: `A GitHub repository with some of my Leetcode solutions. Contains 400+ solutions and is updated everytime I solve a new problem.`,
     imgSrc: '/static/images/leetcode.png',
     href: 'https://github.com/HarryWangATX/LeetCodeProblemSolutions'
-  }
+  },
+  {
+    title: 'My Website',
+    description: `This website was built on the Next.js framework with TailwindCSS and features static page builds!`,
+    imgSrc: '/static/images/twitter-card.png',
+    href: 'https://harrycodes.com/'
+  },
 ]
 
 export default projectsData
