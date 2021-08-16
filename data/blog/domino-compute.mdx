@@ -1,0 +1,80 @@
+---
+title: Computing with Dominoes
+date: '2021-08-15'
+tags: ['Computers','Domino','Cool','Turing-Completeness']
+draft: false
+summary: 'Did you know you can technically build computers with dominoes?! Read more to find out how!'
+---
+
+# Introduction
+
+I was first introduced to similar types of computing through a YouTube video about [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life). Conway's Game of Life is actually
+turing-complete, which means in simple terms that it can simulate what a computer can do. In this case, [gliders](https://en.wikipedia.org/wiki/Glider_(Conway%27s_Life)) can represent bits,
+and the interaction between many gliders can different logic gates such as AND/OR/XOR/etc. For
+this post, I will be performing some binary additions with the help of **many** dominoes! I also recommend reading about some [bitwise operators](https://en.wikipedia.org/wiki/Bitwise_operation) if
+you are not familiar with those.
+
+# Basic Requirements
+
+As noted above, in order be turing-complete, we need to make sure we can construct proper logic gates with dominoes to execute certain bit operations. Let's
+go over the basic logic of addition below first.
+
+## Adding Binary Numbers
+
+Let's start with `11 + 01`:
+
+We know that $1 + 1 = 10$, $0 + 0 = 0$, $1 + 0 = 1$, and $0 + 1 = 1$ in binary. Perhaps you might have thought about using the XOR with these bits, and you would be correct!
+Since XOR only returns 1 when there's exactly one `1` bit, it is very fit for this task. However, we still need carry if there are two `1` bits. Thus, we can use the AND gate to
+represent whether we carry or not. Shown below is our current logic for single digit addition.
+
+![One digit addition](/static/images/oneadd.svg)
+
+After creating the logic for the first digits, we can essentially chain these on for additional digits with minor adjustments.
+One thing we do need to watch out for when chaining is to take care of the carry sum from previous chains.
+To accommodate for this, we can use XOR again with the already XOR-ed sum, and OR (we can guarantee there aren't two `1` bits in the carry) the two carry digits together for the third digit.
+The diagram below will make way more sense.
+
+![Full binary addition](/static/images/fulladd.svg)
+
+Reading the 3 boxes at the bottom from right to left will get you the binary sum of the two binary numbers.
+
+# Logic with Dominoes
+
+We have figured out the basic logic needed to add two 2-digit binary numbers, and we just have to build our domino contraption now!
+
+## OR Gate
+
+One of the easiest gates we need is the OR gate. We need to make it such that if one stream of dominoes fall, then the output also falls. In this case,
+we have inputs/outputs, if it falls, then it is represented as `1`, otherwise, `0`.
+We can use this sort of arrangement shown below.
+
+![OR Gate](/static/images/or.svg)
+
+As you can see, if either side gets knocked down (`1`), the output will also be knocked over (`0`).
+
+## AND Gate
+
+This gate is slightly more complicated than the OR gate. The basic idea is that we need to block off the dominoes that can knock over the output stream if there
+is one or less `1` bit. Otherwise, that path should stay open. Below is an arrangement that can be used for an AND gate.
+
+![AND Gate](/static/images/and.svg)
+
+It is important to note that the right side has more dominoes! This is especially important because we want to make sure there is time to block off the path if
+there is less than 2 `1` bits.
+
+## XOR Gate
+
+This is the last gate we will use for our domino computer! It is slightly more complex to understand, but easier to build. We just need to terminate the stream
+if we have 2 `1` bits; otherwise, we should let either one of the streams knock over the output. Below is an implementation for a XOR gate.
+
+![XOR Gate](/static/images/xor.svg)
+
+You can observe that if both inputs are knocked over, it will terminate. However, if only 1 input is knocked over, the dominoes will continue to knock
+over the output.
+
+# Last Step
+
+The three logic gates that are utilized in this computer have been covered! Now you can follow the full logic diagram in the above section to build your own!
+Make sure you keep track of the timing of the dominoes as many of the gates need a somewhat precise timing to function. More specifically, you might need to tinker
+with the length of connection dominoes between different gates. This will be somewhat tedious to fine tune and will require some time and many dominoes.
+If it does become hard, try to build a single digit computer and extend off of that! I hope you enjoyed this post, and happy dominoes!
