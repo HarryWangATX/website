@@ -145,7 +145,8 @@ module.exports = {
               borderLeftColor: theme('colors.gray.700'),
             },
             img: {
-              filter: 'invert(80%)',
+              backgroundColor: theme('colors.gray.200'),
+              borderRadius: '15px'
             },
           },
         },

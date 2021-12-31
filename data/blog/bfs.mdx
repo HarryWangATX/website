@@ -5,6 +5,7 @@ tags: ['CP', 'Algorithm', 'Tree', 'Array', 'Java']
 draft: false
 summary: 'Learn more about breadth first search and how it is implemented on arrays and trees!'
 ---
+import YoutubeEmbed from "@/components/Youtube";
 
 # Introduction
 
@@ -74,10 +75,7 @@ class BinaryTree {
 
 Hopefully, you understand how the Binary Tree structure works. If you didn't, all you need to know is that ```node.left``` refers to the left subchild, `node.right` refers to the right subchild, and ```node.val``` refers to the values of the current node. Now we can get started! Remember when I mentioned BFS is level search? Well, if you forgot, I'll remind you one more time. This is the core concept for BFS. You simply cannot understand BFS without knowing that. Now, to perform a level search, you obviously need data from the previous level to the next level. In this case, it's the child nodes inside of the parent nodes that holds this. Starting from the root, ```root.left``` and ```root.right``` goes to the next level. We make root.left and root.right a Node by themselves called a and b respectively and the next level would be a.left, a.right, b.left, and b.right. You should now be getting a sense of how this should be done. With that, we can now talk about the data structure used for BFS. Obviously, once we've traversed a level, we want to delete the node so the level doesn't get deleted. The Queue is the perfect data structure for BFS. A Queue is first in, first out. Therefore, it maintains the relative ordering of the nodes. For example, I can push root.left and root.right in. Then when I pop from the queue, root.left comes out. Therefore, I can go to the next level with the information that I got from popping ```root.left``` out. Of course, we can't just pile on the ```.left``` and `.right` like ```root.left.left.left.right```. So we will store these as nodes, every child is a node themselves, and we can call ```node.left``` to get its child data. At this point, I will show the implementation for this algorithm and will provide the data in the queues right besides it. If you don't understand now, you will once you visualize it.
 
-
-
 ![Binary Tree](/static/images/BinaryTree.svg)
-
 
 Above is the Binary Tree built from the Binary Tree Class code from above. It also shows the values in the queue as the algorithm goes from one level to the next. Below is the BFS traversal algorithm for a Binary Tree. By looking at the code and the illustration above, you should be able to get a better sense of how to perform a BFS algorithm and how it works. With that, we can go into BFS in a 2D array.
 
@@ -104,7 +102,7 @@ public static void BFS(BinaryTree tree){
 ```
 
 # BFS on 2D Arrays
-The reason I explained BFS on Binary Trees first was because a Binary Tree Node only has 2 child nodes and it is very easy to visualize BFS on a tree as well. Now that you all have a sense of what BFS is, we can get into a more modified use of BFS. What I want to talk about in this section is just doing a simple BFS on a 2D array. More formally, we will use a $5\times5$ array and start the search at cell $(2, 2)$($0$-indexed). We also want our BFS to search the surrounding 8 cells instead of the surround 4 cells. However, you will soon realize a problem. The problem is that there might be repeats as you move outwards. To solve this, we can sacrifice some memory and create a boolean visited 2D array. This way, when we visit a cell, we can mark that same cell in the boolean array as true and when we are adding cells into the queue, we can check $!\texttt{visited}[i][j]$ to make sure that it haven't been visited yet. These are the types of modifications that are prominent in BFS algorithms. Feel free to try this problem on your own, the implementation with comments are provided below in case you got stuck. If you would like to see BFS on an N-ary tree, check out this [video](https://youtu.be/0YUcPizIZPI)! I talk about adjacency list and adjacency matrix in that video as well.
+The reason I explained BFS on Binary Trees first was because a Binary Tree Node only has 2 child nodes and it is very easy to visualize BFS on a tree as well. Now that you all have a sense of what BFS is, we can get into a more modified use of BFS. What I want to talk about in this section is just doing a simple BFS on a 2D array. More formally, we will use a $5\times5$ array and start the search at cell $(2, 2)$($0$-indexed). We also want our BFS to search the surrounding 8 cells instead of the surround 4 cells. However, you will soon realize a problem. The problem is that there might be repeats as you move outwards. To solve this, we can sacrifice some memory and create a boolean visited 2D array. This way, when we visit a cell, we can mark that same cell in the boolean array as true and when we are adding cells into the queue, we can check $!\texttt{visited}[i][j]$ to make sure that it haven't been visited yet. These are the types of modifications that are prominent in BFS algorithms. Feel free to try this problem on your own, the implementation with comments are provided below in case you got stuck. If you would like to see BFS on an N-ary tree, check out this [video](https://youtu.be/0YUcPizIZPI) (Embeded below)! I talk about adjacency list and adjacency matrix in that video as well.
 
 
 ```java
@@ -146,7 +144,8 @@ public class BFSExample{
                 for (int j = 0; j < 8; j++) {
                     int newi = cur.i + dx[j];
                     int newj = cur.j + dy[j];
-                    if(newi < 0 || newi >= traverse.length || newj < 0 || newj >= traverse[0].length){ //Checking if the newi and newj are out of bounds
+                    if(newi < 0 || newi >= traverse.length || newj < 0 || newj >= traverse[0].length){
+                        //Checking if the newi and newj are out of bounds
                         continue;
                     }
 
@@ -162,3 +161,5 @@ public class BFSExample{
     }
 }
 ```
+
+<YoutubeEmbed embedId={"0YUcPizIZPI"} />

@@ -1,0 +1,255 @@
+---
+title: Minimum Spanning Tree Algorithms
+date: '2021-12-30'
+tags: ['CP', 'Algorithm', 'Tree', 'Graph', 'Java']
+draft: false
+summary: 'Given a series of vertices with edges and finding the minimum spanning tree of that graph!'
+---
+
+# Introduction
+
+Welcome back to my website! This post will be about how to find a minimum spanning tree (MST) of a given graph. This algorithm can be
+commonly used to find the minimum cost needed to connect a series of nodes together. I will be offering two different approaches of
+finding the MST, each has its own advantages but each one can still be used interchangeably in most circumstances. The first type
+is the Kruskal's Algorithm, and the second type is the Prim's Algorithm. Both algorithms make use of a greedy approach to construct the MST.
+
+# Prerequisites
+
+The Kruskal's algorithm takes use of the data structure called Disjoint Set Union, which is a data structure that allows for
+efficient checks on whether two nodes are in the same component. There are no prerequisites for the Prim's algorithm, but it is
+quite similar to Dijkstra's algorithm.
+
+## What is a MST?
+
+A MST or minimum spanning tree is a tree in a weighted graph, graph with edge weights, that ensures every single node is in the same
+connected component of the any other node with the minimum total edge weight. The MST only exists when the given graph is already connected.
+
+# Kruskal's Algorithm
+
+The Kruskal's algorithm is one of the more used MST algorithm when participating in competitive programming. The intuition behind the Kruskal's
+algorithm is that it greedily adds edges to the resultant MST as long as the two nodes in the edge are not already connected. This works if we sort
+all of the edges from the least to greatest first. As we add each edge, we can use the Disjoint Set Union to check for whether the two nodes are already
+connected. This method works because if there are lower costing edges that already connects the nodes, then the current edge can be discarded as adding
+it will result in a higher cost tree, which wouldn't be a MST. The time complexity needed to sort all the edges is $\mathcal{O}(E \log(E))$. Since
+checking whether the connectivity of two nodes with Disjoint Set Union is worst case $\mathcal{O}(\log(V))$, the time complexity of going through the
+edges is $\mathcal{O}(E \log(V))$. Thus, the final time complexity of the Kruskal's algorithm is either $\mathcal{O}(E \log(E))$ or
+$\mathcal{O}(E \log(V))$. As it is shown from the time complexity, Kruskal's algorithm performs better with sparse graphs, or graphs with lower amounts
+of edges. Below is an illustration and code demonstrating how Kruskal's algorithm works.
+
+![Kruskal's Illustration](/static/images/Kruskals.svg)
+
+```java
+import java.util.*;
+import java.io.*;
+
+public class Kruskal {
+    public static void main(String[] args) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer tokenizer = new StringTokenizer(in.readLine());
+        int N = Integer.parseInt(tokenizer.nextToken());
+        int E = Integer.parseInt(tokenizer.nextToken());
+
+
+        List<Edge> adj = new ArrayList<>();
+        for (int i = 0; i < E; i++) {
+            tokenizer = new StringTokenizer(in.readLine());
+            int a = Integer.parseInt(tokenizer.nextToken());
+            int b = Integer.parseInt(tokenizer.nextToken());
+            int c = Integer.parseInt(tokenizer.nextToken());
+
+            adj.add(new Edge(a, b, c));
+        }
+
+        Collections.sort(adj);
+
+        DSU dsu = new DSU(N+1);
+
+        long mst = 0;
+        for (Edge e : adj) {
+            if(dsu.union(e.t, e.f)) {
+                mst += e.c;
+            }
+        }
+
+        if(dsu.size(1) != N)
+            System.out.println("IMPOSSIBLE");
+        else
+            System.out.println(mst);
+    }
+
+    private static class Edge implements Comparable<Edge>{
+        int t, f, c;
+        public Edge(int t, int f, int c) {
+            this.t = t;
+            this.f = f;
+            this.c = c;
+        }
+
+        @Override
+        public int compareTo(Edge o) {
+            return c - o.c;
+        }
+    }
+
+    private static class DSU {
+        int[] p;
+        int[] sz;
+        public DSU(int n) {
+            sz = new int[n + 1];
+            p = new int[n + 1];
+            Arrays.fill(sz, 1);
+            Arrays.fill(p, -1);
+        }
+
+        public boolean union(int x, int y) {
+            int parx = find(x);
+            int pary = find(y);
+            if (parx == pary) {
+                return false;
+            }
+
+            if (sz[parx] < sz[pary]) {
+                p[parx] = pary;
+                sz[pary] += sz[parx];
+            }
+            else {
+                p[pary] = parx;
+                sz[parx] += sz[pary];
+            }
+            return true;
+        }
+
+        public int size(int x) {
+            return sz[find(x)];
+        }
+
+        public int find(int x) {
+            if(p[x] == -1) {
+                return x;
+            }
+
+            p[x] = find(p[x]);
+            return p[x];
+        }
+
+        public boolean same(int x, int y) {
+            return find(x) == find(y);
+        }
+    }
+}
+```
+
+# Prim's Algorithm
+
+Prim's Algorithm is also a greedy algorithm that constructs the MST of a graph. The Prim's Algorithm is also very similar to Dijkstra's algorithm, in
+fact it only differs by one line. The Prim's algorithm is a constructive algorithm that builds an MST of the graph progressively. The intuition behind
+it is quite simple. Imagine that you currently have an incomplete MST of your graph, so you have nodes that are either part of the incomplete MST or
+part of the graph but isn't currently in the MST. You know that since a MST incorporates every single node in the graph, there must be some sort of edge
+connects the incomplete MST to the leftover nodes. Since we are searching for the **minimum** spanning tree, we obviously would pick the lowest cost
+edge to join the two components. We keep repeatedly choosing and replacing suboptimal edges until we are left with all nodes in our MST, which will be
+the result. To implement this, we are essentially looking for the lowest cost edge that can connect itself from one node to another. For every node, we
+need to find the optimal weight edge that connects it to the resultant MST. In order to implement this, we take the same approach as Dijkstra's but
+instead of passing on the total path cost, we only pass on the edge cost. This modification allows the algorithm to finding minimal cost edges to
+constructing the MST. Since we will visit each vertex once, we will have to extract the minimum edge a total of N times, which takes
+$\mathcal{O}(E \log N)$ times. For each time vertex we travel to, we also need to loop through its edges to go to its neighbors. There are a total of
+$E$ edges; therefore, the total time complexity for this portion takes $\mathcal{O}(E \log V)$ time. Adding these two together, our final time
+complexity takes $\mathcal{O}((V + E) \log V)$ time. In the case we are given a dense graph, the amount of edges will be many times greater than
+the amount of nodes and we can reduce the time complexity to $\mathcal{O}(E \log V)$. However, if you implement the algorithm with a fibonacci heap
+(the default heap is usually a binary heap which is what we used to calculate time above), you can reduce it to $\mathcal{O}(E + V \log V)$ since the
+amortized time for insertion in a fibonacci heap is $\mathcal{O}(1)$. Below is an illustration and code demonstrating how the Prim's algorithm works.
+
+![Prim's Illustration](/static/images/Prims.svg)
+
+```java
+import java.util.*;
+import java.io.*;
+
+public class Prims {
+    public static void main(String[] args) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer tokenizer = new StringTokenizer(in.readLine());
+        int N = Integer.parseInt(tokenizer.nextToken());
+        int E = Integer.parseInt(tokenizer.nextToken());
+
+
+        List<Edge>[] adj = new ArrayList[N+1];
+        for (int i = 0; i <= N; i++) {
+            adj[i] = new ArrayList<>();
+        }
+        for (int i = 0; i < E; i++) {
+            tokenizer = new StringTokenizer(in.readLine());
+            int a = Integer.parseInt(tokenizer.nextToken());
+            int b = Integer.parseInt(tokenizer.nextToken());
+            int c = Integer.parseInt(tokenizer.nextToken());
+
+            adj[a].add(new Edge(b, c));
+            adj[b].add(new Edge(a, c));
+        }
+
+        PriorityQueue<Edge> pq = new PriorityQueue<>();
+        int[] mst = new int[N+1];
+        boolean[] vis = new boolean[N+1];
+        Arrays.fill(mst, Integer.MAX_VALUE);
+        pq.add(new Edge(1, 0));
+        mst[1] = 0;
+
+
+        while(!pq.isEmpty()) {
+            Edge cur = pq.poll();
+
+            vis[cur.t] = true;
+            for(Edge e : adj[cur.t]) {
+                if(e.c < mst[e.t] && !vis[e.t]) {
+                    mst[e.t] = e.c;
+                    pq.add(new Edge(e.t, e.c));
+                }
+            }
+        }
+
+        long sum = 0;
+        boolean g = true;
+        for (int i = 1; i < mst.length; i++) {
+            if(mst[i] == Integer.MAX_VALUE) {
+                g = false;
+                break;
+            }
+            sum += mst[i];
+        }
+
+        if(g) {
+            System.out.println(sum);
+        }
+        else {
+            System.out.println("IMPOSSIBLE");
+        }
+
+    }
+
+    private static class Edge implements Comparable<Edge> {
+        int t, c;
+        public Edge(int t, int c) {
+            this.t = t;
+            this.c = c;
+        }
+
+        @Override
+        public int compareTo(Edge o) {
+            return c - o.c;
+        }
+    }
+}
+```
+
+# Kruskal's vs Prim's Algorithm
+
+Implementation wise, Kruskal's algorithm is quite a bit easier to implement as the code is very straightforward with the exception of the Disjoint Set
+Union algorithm if you are new to it. While Prim's is more difficult to implement, after becoming familiar with both algorithms, they should both
+take around the same time to write up. Technically, both algorithms have the same time complexities, but as the above time complexities show, the
+Prim's algorithm will run significantly faster than Kruskal's algorithm on a dense graph and Kruskal's will perform better on a sparse graph. In
+competitive programming, contestants tend to implement the Kruskal's algorithm more often.
+
+# Conclusion
+
+Each MST algorithm has its own advantages and disadvantages, it is always wise to learn both just in case conditions for one problem requires one
+over another. While many problems also require further modifications to these algorithms, shown above is the implementation for the most basic
+level. I hope that you successfully learned how to find MSTs in a graph, and I'll see you again next time.
