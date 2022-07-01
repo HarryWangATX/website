@@ -91,7 +91,7 @@ As shown, there is a clear indication of a vertical edge between the 2nd and 3rd
 every time as the stride. In the above example, we had a stride of $1$. Another common technique when applying filters is to pad the image.
 As seen above, the image size was reduced after the convolutions, and a more drastic reduction would be seen if a larger stride size was used.
 Therfore, you can choose to pad dimenions of the image to maintain the same size after applying the filters. If we wanted to maintain the same size
-we would need to have an additional padding of $P = \frac{W(S-1) + F - S}{2}$ where $W$ is the dimensions,$S$ is the stride, $F$ is the filter
+we would need to have an additional padding of $P = \frac{W(S-1) + F - S}{2}$ where $W$ is the dimensions, $S$ is the stride, $F$ is the filter
 dimensions, and $P$ is the padding needed. For our above example, we would need to have a padding of $2$ for a same sized matrix after extracting the features. Below is the $6 \times 6$ image with $P = 2$.
 
 $$
