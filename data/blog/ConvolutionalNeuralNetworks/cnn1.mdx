@@ -18,7 +18,7 @@ are just a few tasks that can be accomplished with Convolutional Neural Networks
 # Why CNNs
 
 For those that are familiar with normal Neural Networks, you might be wondering why we can't do image recognition tasks with Deep Neural Networks.
-The answer is you can, but there are some disadvantages. Take a $64 \times 64$ image for example. There are three channels representing that image:
+The answer is you can, but there are some disadvantages. Take a $64 \times 64$ image for example. Assume are three channels representing each pixel:
 R, G, and B. This means there are $64 \cdot 64 \cdot 3 = 12288$ input parameters. From first glance, this may seem like a fairly low number, but such
 an image has an extremely low resolution. If you were using higher resolution images such as
 $512 \times 512$, you find that you have $512 \cdot 512 \cdot 3 = 786432$ input parameters. With this many parameters in the input layer, the network
@@ -44,12 +44,12 @@ Now lets take a $6 \times 6$ image matrix:
 
 $$
 \begin{bmatrix}
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2
 \end{bmatrix}
 $$
 
@@ -60,12 +60,12 @@ convolution operations of the full above image below.
 
 $$
 \begin{bmatrix}
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20 \\
-  20 & 20 & 0 & 0 & 20 & 20
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2 \\
+  2 & 2 & 0 & 0 & 2 & 2
 \end{bmatrix}
 
 \ast
@@ -79,29 +79,29 @@ $$
 \rightarrow
 
 \begin{bmatrix}
-  60 & 60 & -60 \\
-  60 & 60 & -60 \\
-  60 & 60 & -60
+  6 & 6 & -6 \\
+  6 & 6 & -6 \\
+  6 & 6 & -6
 \end{bmatrix}
 $$
 
-We refer to the distance we shift the filter every time as the stride. In the above example, we had a stride of $1$. Another common technique when
-applying filters is to pad the image. As seen above, the image size was reduced after the convolutions, and a more drastic reduction would be seen if
-a larger stride size was used. Therfore, you can choose to pad dimenions of the image to maintain the same size after applying the filters. If we
-wanted to maintain the same size we would need to have an additional padding of $P = \frac{W(S-1) + F - S}{2}$ where $W$ is the dimensions,
-$S$ is the stride, $F$ is the filter dimensions, and $P$ is the padding needed. For our above example, we would need to have a padding of $2$ for a
-same sized matrix after extracting the features. Below is the $6 \times 6$ image with $P = 2$.
+As shown, there is a clear indication of a vertical edge between the 2nd and 3rd column of the matrix. We refer to the distance we shift the filter
+every time as the stride. In the above example, we had a stride of $1$. Another common technique when applying filters is to pad the image.
+As seen above, the image size was reduced after the convolutions, and a more drastic reduction would be seen if a larger stride size was used.
+Therfore, you can choose to pad dimenions of the image to maintain the same size after applying the filters. If we wanted to maintain the same size
+we would need to have an additional padding of $P = \frac{W(S-1) + F - S}{2}$ where $W$ is the dimensions,$S$ is the stride, $F$ is the filter
+dimensions, and $P$ is the padding needed. For our above example, we would need to have a padding of $2$ for a same sized matrix after extracting the features. Below is the $6 \times 6$ image with $P = 2$.
 
 $$
 \begin{bmatrix}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
-  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
-  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
-  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
-  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
-  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
 \end{bmatrix}
