@@ -1,0 +1,120 @@
+---
+title: 'Part 1: Insight into Convolutional Neural Networks'
+date: '2022-06-30'
+tags: ['Deep Learning', 'Image Processing', 'Algorithms']
+draft: false
+summary: 'Fascinated by how computers can recognize images? Read more to find out!'
+---
+
+# Introduction
+
+Have you ever wondered how computers can recognize images? Image recognition, object detection, semantic segmentation, and neural transfer learning
+are just a few tasks that can be accomplished with Convolutional Neural Networks (CNNs). Many of these applications are utilized in autonomous vehicles
+ as well as a variety of different applications. In this post, I will go through the intuition of CNNs and how they work.
+ *It might be useful if you already have some Neural Network knowledge coming in.*
+
+ The link to the paper on CNNs is attached [here](https://proceedings.neurips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf).
+
+# Why CNNs
+
+For those that are familiar with normal Neural Networks, you might be wondering why we can't do image recognition tasks with Deep Neural Networks.
+The answer is you can, but there are some disadvantages. Take a $64 \times 64$ image for example. There are three channels representing that image:
+R, G, and B. This means there are $64 \cdot 64 \cdot 3 = 12288$ input parameters. From first glance, this may seem like a fairly low number, but such
+an image has an extremely low resolution. If you were using higher resolution images such as
+$512 \times 512$, you find that you have $512 \cdot 512 \cdot 3 = 786432$ input parameters. With this many parameters in the input layer, the network
+will become way to big and result in extremely slow training time and low accuracy.
+
+# Filters / Kernals
+
+During learning, the computer must extract features of the image to accurately execute its tasks. Turns out we can use filters (might be referred to
+as kernals but I will be using the term filters) to extract these features out of the image. Filters are matrices that are layered on the image and
+takes the sum of each element-wise multiplied to get the resultant matrix with features. Below is an example to visualize the concept.
+
+One common filter for finding vertical edges in images is:
+
+$$
+\begin{bmatrix}
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+\end{bmatrix}
+$$
+
+Now lets take a $6 \times 6$ image matrix:
+
+$$
+\begin{bmatrix}
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20
+\end{bmatrix}
+$$
+
+We will start the filter at $(0, 0)$ on the image and shift it right one pixel each time. When the edge of the filter reaches the edge of the image,
+we shift the filter down one row and repeat the steps until the whole image matrix is covered. When a patch of the image matrix and the filter are
+multiplied and summed for an entry, the operation called a convolution. Hence, the name Convolutional Neural Networks. I've illustrated the
+convolution operations of the full above image below.
+
+$$
+\begin{bmatrix}
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20 \\
+  20 & 20 & 0 & 0 & 20 & 20
+\end{bmatrix}
+
+\ast
+
+\begin{bmatrix}
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+\end{bmatrix}
+
+\rightarrow
+
+\begin{bmatrix}
+  60 & 60 & -60 \\
+  60 & 60 & -60 \\
+  60 & 60 & -60
+\end{bmatrix}
+$$
+
+We refer to the distance we shift the filter every time as the stride. In the above example, we had a stride of $1$. Another common technique when
+applying filters is to pad the image. As seen above, the image size was reduced after the convolutions, and a more drastic reduction would be seen if
+a larger stride size was used. Therfore, you can choose to pad dimenions of the image to maintain the same size after applying the filters. If we
+wanted to maintain the same size we would need to have an additional padding of $P = \frac{W(S-1) + F - S}{2}$ where $W$ is the dimensions,
+$S$ is the stride, $F$ is the filter dimensions, and $P$ is the padding needed. For our above example, we would need to have a padding of $2$ for a
+same sized matrix after extracting the features. Below is the $6 \times 6$ image with $P = 2$.
+
+$$
+\begin{bmatrix}
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
+  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
+  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
+  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
+  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
+  0 & 0 & 20 & 20 & 0 & 0 & 20 & 20 & 0 & 0\\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\end{bmatrix}
+$$
+
+The final size after all the convolution operations for an $N \times N$ image would be $\frac{N + 2P - F}{2} \times \frac{N + 2P - F}{2}$.
+
+# Intuition Behind CNN Architecture
+
+In a full-blown CNN Neural Network, there are more operations such as Pooling which I will cover in the next part of this blog post. However, the
+network functions by chaining multiple filters together into blocks. If an image is $6 \times 6 \times 3$ (due to RGB channels), and you are using
+filter size of $3 \times 3 \times 3$, you can stack filters that will extract different features on the existing matrix. If you want to have 10 filters
+in one layer, the size of your block would be $3 \times 3 \times 3 \times 10$. We will use back propagation gradient descent to calculate values for
+each individual cell in the filters. This means there is only $(3 \cdot 3 \cdot 3 + 1) * 10$ parameters to be trained, 27 cell values and a bias
+parameter. It is obvious here there are way less parameters to train than doing this task with a traditional neural network. In part 2, we will
+go more in-depth on how a CNN is structured. See you there!
