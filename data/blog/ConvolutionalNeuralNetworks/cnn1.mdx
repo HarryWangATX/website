@@ -111,12 +111,43 @@ $$
 
 The final size after all the convolution operations for an $N \times N$ image would be $\frac{N + 2P - F}{2} \times \frac{N + 2P - F}{2}$.
 
-# Intuition Behind CNN Architecture
+# Pooling
 
-In a full-blown CNN Neural Network, there are more operations such as Pooling which I will cover in the next part of this blog post. However, the
-network functions by chaining multiple filters together into blocks. If an image is $6 \times 6 \times 3$ (due to RGB channels), and you are using
-filter size of $3 \times 3 \times 3$, you can stack filters that will extract different features on the existing matrix. If you want to have 10 filters
-in one layer, the size of your block would be $3 \times 3 \times 3 \times 10$. We will use back propagation gradient descent to calculate values for
-each individual cell in the filters. This means there is only $(3 \cdot 3 \cdot 3 + 1) * 10$ parameters to be trained, 27 cell values and a bias
-parameter. It is obvious here there are way less parameters to train than doing this task with a traditional neural network. In part 2, we will
-go more in-depth on how a CNN is structured. See you there!
+Another important building block of CNNs are pooling layers. Pooling layers are used to down-size the amount of parameters that need to be trained by
+summarizing the overall matrix. Two common types of pooling layers are Max Pooling and Average Pooling. These are quite intuitive to understand, max
+pooling takes the maximum value over the region you pool and average pooling takes the average value over the region you pool. Below is an example
+of what pooling would do to this $4 \times 4$ matrix.
+
+$$
+\begin{bmatrix}
+  1 & 2 & 6 & 7 \\
+  4 & 5 & 4 & 8 \\
+  1 & 3 & 2 & 6 \\
+  1 & 5 & 1 & 5
+\end{bmatrix}
+$$
+
+Max Pooling with a size of $2 \times 2$ and a stride of $2$:
+
+$$
+\begin{bmatrix}
+  5 & 8 \\
+  5 & 6 \\
+\end{bmatrix}
+$$
+
+Average Pooling with a size of $2 \times 2$ and a stride of $2$:
+
+$$
+\begin{bmatrix}
+  3 & 6.25 \\
+  2.5 & 3.5 \\
+\end{bmatrix}
+$$
+
+
+# What's Next?
+
+Now that you know how the building blocks of a CNN works, we will cover methods to incorporate filters and pooling layers together into a
+full-blown Convolutional Neural Network. The model architecture and an implementation of a simple CNN using Tensorflow will be covered in
+Part 2. See you there!
