@@ -90,6 +90,7 @@ html {
   left: 50%;
   color: black;
   background: white;
+  border-radius: 10px;
   opacity: 0;
   transform: translateX(-50%);
   transition: opacity ease-in-out 0.2s;
@@ -104,6 +105,7 @@ html {
   height: 44px;
   background: white;
   border: 0;
+  border-radius: 10px;
   font: inherit;
   font-size: .8em;
 }
