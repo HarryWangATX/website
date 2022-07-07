@@ -37,7 +37,7 @@ const PDFViewer = ({filePath}) => {
                 file={filePath}
                 onLoadSuccess={onDocumentLoadSuccess}
             >
-                <Page pageNumber={pageNumber} />
+                <Page pageNumber={pageNumber} renderTextLayer={false} renderAnnotations={false}/>
 
                 <div className="page-controls">
                     <button
