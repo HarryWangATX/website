@@ -109,10 +109,16 @@ html {
   font: inherit;
   font-size: .8em;
 }
+
+.page-controls button:disabled {
+  background-color: #e6e6e6;
+  cursor: not-allowed;
+}
+
 .page-controls button:enabled:hover {
   cursor: pointer;
 }
-.page-controls button:enabled:hover, .page-controls button:enabled:focus {
+.page-controls button:enabled:hover {
   background-color: #e6e6e6;
 }
 .page-controls button:first-child {
