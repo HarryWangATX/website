@@ -111,7 +111,7 @@ html {
 }
 
 .page-controls button:disabled {
-  background-color: #e6e6e6;
+  color: #e6e6e6;
   cursor: not-allowed;
 }
 

@@ -1,0 +1,52 @@
+---
+title: Understanding the Heap Data Structure
+date: '2022-03-17'
+tags: ['Data Structure', 'Algorithms']
+draft: true
+summary: 'Have you ever wondered how Priority Queues worked? Read this article to find out more about heaps!'
+---
+
+# Introduction
+
+Have you ever used a `PriorityQueue` in Java or a `priority_queue` in C++ before? If so, maybe you've wondered how it could perform insertion and
+queries in $\mathcal{O} (\log(N))$ time. Priority Queues are commonly implemented with Binary Heaps (tree structure) to maximize efficiency. There are
+two types of Binary Heaps: Max-Heap and Min-Heap. As you might've guessed from the name, a Max-Heap stores the largest element at the root, and a
+Min-Heap stores the smallest element at the root. While there are other types of heaps like fibonacci heap or binomial heap, in this post, I will
+go through the way Binary Heaps function and how to implement them! ***Note: For this post, I will be using Max-Heap as the example heap, but
+Min-Heap is the same concept just with a few modifications.***
+
+## Basic Requirements
+
+Before I get started, I just want to go over how a Binary Tree works, as the core concept of a Heap relies on an understanding of the Binary Tree.
+A Binary Tree is a tree where each node has at most two child nodes, commonly referred to as the left and right child. With this understanding,
+you will now be able to comprehend how Heaps work!
+
+# General Idea
+
+The general concept of a Max-Heap is to have the parent nodes be larger than both of their child nodes. As you may observe, this makes the root node
+always the largest. Therefore, we can simply remove the root node in every single `remove()` operation if our priority wants the biggest first. If
+you want the smallest first, you would use a Min-Heap as the smallest element will be the root every single time. It is important to note that a
+heap needs to be in the form of a [complete binary tree](https://en.wikipedia.org/wiki/Binary_tree#Types_of_binary_trees) to maintain sizing of the
+tree and friendly random access which will be seen later in this post.
+
+# Representing a Heap
+
+There are a few ways to represent the heap in code. You can either build a `Node` class and use it to represent the tree, or you can use an array
+to represent the heap. In this post, I will be using arrays to represent the heap. To do so, we can let index $i$ be the parent node, then `$2 * i$ is
+the left child node and $2 * i + 1$ is the right child node. The above example is done using a 1-indexed system. If you want it to be 0-indexed, then
+$2 * i + 1$ would be the left child node and $2 * i + 2$ would be the right child node.
+
+# Insertion Method
+
+When inserting, we must make sure we maintain our existing heap property of having each parent node be greater than both child nodes and keeping
+the complete binary tree structure. We know that before the insertion, the heap properties are already fulfilled, so we will use that to our
+advantage when we "re-heapify" after inserting. To re-heapify, we must move our new value up until it is no longer larger than its parent node.
+Below is an illustration and an implementation of how the `add()` method can be implemented. Since we will at most traverse the height of our heap,
+which is on average $\log N$, the time complexity of this function is $\mathcal{O} (\log N)$. Below is an illustration and my implementation of how
+this could be programmed.
+
+```java
+
+```
+
+
