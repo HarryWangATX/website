@@ -1,0 +1,141 @@
+---
+title: 'Part 2: Insight into Convolutional Neural Networks'
+date: '2022-07-10'
+tags: ['Deep Learning', 'Image Processing', 'Algorithms']
+draft: false
+summary: 'An in-depth look into Convolutional Neural Networks!'
+---
+
+# Introduction
+
+In this part, I will cover how a CNN is structured. If you haven't read the [Part 1](/blog/ConvolutionalNeuralNetworks/cnn1), make sure to do so as I went over some
+of the crucial building blocks of a CNN. In this part, we will look at how filters and pooling layers come together to create a full network that has the potential
+to perform a variety of tasks such as image recognition.
+
+# Convolutions Over Multiple Pixel Channels
+
+Given most RGB images have three channels, how do we apply filters or pooling to a $N \times N \times 3$ image matrix? Turns out, all we need to do is to add
+another dimension to the filter size. Instead of an $F \times F$ size, we will use a $F \times F \times x$ size, $x$ being however many channels your image matrix
+contains (in our case, 3). During the convolution step, you do an elementwise sum over all three dimensions to obtain the convoluted matrix. To illustrate this, imagine we have a
+$3 \times 3 \times 3$ image matrix with each channel represented below—each representing R, G, and B respectively.
+
+$$
+
+\begin{bmatrix}
+  4 & 5 & 1 \\
+  6 & 10 & 2 \\
+  2 & 3 & 5 \\
+\end{bmatrix}
+
+\begin{bmatrix}
+  2 & 5 & 5 \\
+  3 & 4 & 2 \\
+  2 & 3 & 5 \\
+\end{bmatrix}
+
+\begin{bmatrix}
+  4 & 1 & 1 \\
+  5 & 7 & 2 \\
+  8 & 9 & 5 \\
+\end{bmatrix}
+
+$$
+
+Let's use our vertical edge detector example from part 1 again here. If you wanted to detected edges in only the red channel, you would use a filter as such:
+
+$$
+
+\begin{bmatrix}
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+\end{bmatrix}
+
+\begin{bmatrix}
+  0 & 0 & 0 \\
+  0 & 0 & 0 \\
+  0 & 0 & 0 \\
+\end{bmatrix}
+
+\begin{bmatrix}
+  0 & 0 & 0 \\
+  0 & 0 & 0 \\
+  0 & 0 & 0 \\
+\end{bmatrix}
+
+$$
+
+However, if you wanted to detect an vertical edge in the all channels, you would instead use this filter:
+
+$$
+
+\begin{bmatrix}
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+\end{bmatrix}
+
+\begin{bmatrix}
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+\end{bmatrix}
+
+\begin{bmatrix}
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+  1 & 0 & -1 \\
+\end{bmatrix}
+
+$$
+
+For the sake of the example, our filter size and image size are equal, but realistically, image sizes are usually larger than filter sizes. Therefore, after the
+convolution operation, we will end up with a $1 \times 1$ resultant matrix as shown below.
+
+$$
+\begin{bmatrix}
+  8
+\end{bmatrix}
+$$
+
+We obtain that by calculating:
+
+$$
+4 + 6 + 2 - 1 - 2 - 5 + ... + 4 + 5 + 8 - 1 - 2 - 5 = 8
+$$
+
+Stride and padding for convolutions over multiple dimensions will work the same. *We only apply stride and padding to the 2D dimensions of the image and not the
+pixel channel dimensions.*
+
+## Pooling Layers
+
+Pooling layers over multiple dimensions basically work the same way. However, you do individually pool each layer, so the depth dimension after pooling should
+stay the same(though the first two dimensions would change).
+
+# Single Layer CNN
+
+We can now move on to building one layer! Obviously, if the CNN can only detect edges, it wouldn't be able to perform complex tasks that image classification, etc.
+requires. Usually, many filters applied to the matrix in one layer. The results of each filter will be stacked on top of each other into a block. For example,
+if we used three filters on the previous matrix, we would end up with a $x \times x \times 3$ matrix, $x$ being the resulting dimension depending on the filter size,
+stride, and padding.
+
+![Convolution Block](/static/images/Block.svg)
+
+# Dense Layers in CNNs
+
+For image classification and similar tasks, you would actually have a few Convolution blocks and then at the end at some fully connected deep neural
+network layers with a softmax or relu activation on the last layer to reach our result. This basically takes all the attributes in the blocks that the
+convolutional layers have already found and applies deep learning to piece the image features together to reach a conclusion as to what type of picture
+it is.
+
+# Other Examples of CNNs
+
+For tasks such as semantic segmentation, you would not apply dense layers at the end of the network because you want the result to be an image.
+Therefore, you will actually expand the blocks back up(their size decreases at first due to filters and padding), and you will link previous layers to the
+deeper layers, so it has more information about each individual pixels.
+
+# What's Next... again
+
+In this part, you learned what the architecture behind one layer of a CNN is as well as how to use filters across multiple pixel channels. In the next part,
+I will cover a few famous CNN examples and how they are structured as well as demonstrate using a CNN to classify different types of rice from a Kaggle
+database. See you then!
