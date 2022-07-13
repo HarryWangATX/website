@@ -98,10 +98,10 @@ $$
 \end{bmatrix}
 $$
 
-We obtain that by calculating:
+We obtain that by calculating the sum of each element in the filter multiplied by each element in the corresponding image matrix cell across all three channels:
 
 $$
-4 + 6 + 2 - 1 - 2 - 5 + ... + 4 + 5 + 8 - 1 - 2 - 5 = 8
+4 + 6 + 2 - 1 - ... + 8 - 1 - 2 - 5 = 8
 $$
 
 Stride and padding for convolutions over multiple dimensions will work the same. *We only apply stride and padding to the 2D dimensions of the image and not the
