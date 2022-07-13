@@ -13,6 +13,11 @@ const siteMetadata = {
   github: 'https://github.com/HarryWangATX',
   youtube: 'https://youtube.com/c/randomCoder',
   locale: 'en-US',
+  newsletter: {
+    // supports mailchimp, buttondown, convertkit, klaviyo, revue, emailoctopus
+    // Please add your .env file and modify it according to your selection
+    provider: 'mailchimp',
+  },
   comment: {
     // Select a provider and use the environment variables associated to it
     // https://vercel.com/docs/environment-variables
