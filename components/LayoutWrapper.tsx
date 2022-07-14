@@ -6,7 +6,8 @@ import SectionContainer from './SectionContainer'
 import Footer from './Footer'
 import MobileNav from './MobileNav'
 import ThemeSwitch from './ThemeSwitch'
-import { ReactNode } from 'react'
+import React, { ReactNode } from 'react'
+import NewsletterForm from "@/components/NewsletterForm";
 
 interface Props {
   children: ReactNode
@@ -50,6 +51,11 @@ const LayoutWrapper = ({ children }: Props) => {
           </div>
         </header>
         <main className="mb-auto">{children}</main>
+        {siteMetadata.newsletter.provider !== '' && (
+            <div className="flex items-center justify-center pt-4">
+              <NewsletterForm />
+            </div>
+        )}
         <Footer />
       </div>
     </SectionContainer>
