@@ -10,7 +10,7 @@ github: https://github.com/HarryWangATX
 Welcome to my blog! I'm Qi Wang (Harry), a student at Westlake High School. I am an enthusiastic 
 computer scientist interested in algorithms and artificial intelligence. I love conducting 
 interdisciplinary research as well as computer science related investigations. Outside of this,
-I am one of the top 10 clarinetist in Texas and enjoy participating in my school's marching as 
+I am one of the top high school clarinetist in Texas and enjoy participating in my school's marching as 
  well as concert band.
 
 
