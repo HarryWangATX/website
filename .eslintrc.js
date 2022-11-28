@@ -31,6 +31,7 @@ module.exports = {
     'react/prop-types': 0,
     'no-unused-vars': 0,
     'react/no-unescaped-entities': 0,
+    "@next/next/no-img-element": 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
