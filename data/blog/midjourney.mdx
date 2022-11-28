@@ -1,0 +1,51 @@
+---
+title: Thoughts About AI Generated Images
+date: '2022-11-27'
+tags: ['Artificial Intelligence', 'Image Generation', 'Thoughts']
+draft: false
+summary: 'Sharing some of my thoughts on recently created image generation models like DALL-E 2.0 or Midjourney? '
+---
+
+# Introduction
+
+Recently, you might have heard of a few of the AI models created by OpenAI such as DALL-E 2.0 that can generate images given an user's prompt. I've been playing
+around with it for sometime and got to generate some awesome looking images, and I've included an image I generated from [Midjourney](https://www.midjourney.com/) below.
+
+![Midjourney](/static/images/midjourneygenerated.png)
+
+For those who are interested, the prompt is: `surreal robot computer scientist in space`.
+
+# How do They Work?
+
+The technique behind all of these images is called [Stable Diffusion](https://en.wikipedia.org/wiki/Stable_Diffusion). Essentially, a Diffusion model trains by
+learning to remove the noise from the training images that it added noise to. To generate an image, the model starts with a picture filled with noise, and each
+iteration, it removes some of the noise until you are left with a realistic image. Stable Diffusion models have surpassed the performance of many other
+previously established methods such as GANs or VAEs due to its ability to keep the semantic structure of images. However, the disadvantage to these models
+are that it is extremely computationally expensive.
+
+# Social Implications
+
+Some controversy surrounding these image generation models have surfaced lately on the internet. Most notably, the incidence when
+[AI-Generated Art Won State Competition](https://www.washingtonpost.com/technology/2022/09/02/midjourney-artificial-intelligence-state-fair-colorado/).
+However, more serious consequences are the inherent biases that they reinforce.
+
+Since these models are trained with a vast amount of images across the internet, it is likely to reinforce existing stereotypes regarding race, gender, and
+many more. For example, when generating with a prompt `Scientist`, the model will likely generate more male images than female; or when generating with a
+prompt `Nurse`, the model will output more females than males. While some say this simply reflects our world, this could easily discourage people from
+pursuing careers.
+
+# Fixes??
+
+Recently, OpenAI, the company that developed DALL-E 2.0, has addressed the inherent bias. Their solution basically adds descriptive words to prompts that
+do not specify a certain gender, race, etc. to generate a more diverse set of images. Many have referred to this fix as a temporary bandaid because the
+models are still inherently biased.
+
+I think more robust fixes can come from balancing out the imageset with generative models to increase the under-represented population in certain prompts.
+
+This problem also extends beyond simply image generation to Artificial Intelligence in general where the behavior of models heavily mimics the training data
+provided. There have been more and more attention diverted into research to reduce the bias seen, and I am hopeful that we can tackle this obstacle in the future.
+
+# Playtime
+
+In the meantime, I highly recommend you to play around with these image generation models and be fascinated by the amount of detail and style the generated
+images have. I'll see you guys next time :)
