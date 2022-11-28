@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { DotButton, PrevButton, NextButton } from "./EmblaCarouselButtons";
 import useEmblaCarousel from "embla-carousel-react";
+import NextImage from "@/components/NextImage";
 
 const EmblaCarousel = ({ slides }) => {
     const [viewportRef, embla] = useEmblaCarousel({ skipSnaps: false });
@@ -37,12 +38,8 @@ const EmblaCarousel = ({ slides }) => {
                 <div className="embla__container pt-5">
                     {slides.map(({ ...props }, index) => (
                         <div className="embla__slide" key={index}>
-                            <div className="embla__slide__inner rounded-lg shadow-lg">
-                                <img
-                                    className=""
-                                    src={props.src}
-                                    alt="A cool cat."
-                                />
+                            <div className="embla__slide__inner rounded-lg">
+                                <img src={props.src} alt={props.alt}/>
                             </div>
                         </div>
                     ))}
