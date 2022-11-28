@@ -6,14 +6,24 @@ draft: false
 summary: 'Sharing some of my thoughts on recently created image generation models like DALL-E 2.0 or Midjourney!'
 ---
 
+import EmblaCarousel from "@/components/EmblaCarousel";
+
 # Introduction
 
 Recently, you might have heard of a few of the AI models created by OpenAI such as DALL-E 2.0 that can generate images given an user's prompt. I've been playing
-around with it for sometime and got to generate some awesome looking images. Here's an image I generated from [Midjourney](https://www.midjourney.com/) below.
+around with it for sometime and got to generate some awesome looking images. Here's some images I generated from [Midjourney](https://www.midjourney.com/) below.
 
-![Midjourney](/static/images/midjourneygenerated.png)
+<EmblaCarousel slides={[
+    {
+        src: "/static/images/midjourney2.png",
+    },
+    {
+        src: "/static/images/midjourneygenerated.png",
+    },
+]} />
 
-For those who are interested, the prompt is: `surreal robot computer scientist in space`.
+
+For those who are interested, the prompts are: `futuristic robot peaking into portal to another world, octane render, ultra detailed, cinematic lighting` and `surreal robot computer scientist in space`.
 
 # How do They Work?
 
