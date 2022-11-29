@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { DotButton, PrevButton, NextButton } from "./EmblaCarouselButtons";
 import useEmblaCarousel from "embla-carousel-react";
-import NextImage from "@/components/NextImage";
 
 const EmblaCarousel = ({ slides }) => {
     const [viewportRef, embla] = useEmblaCarousel({ skipSnaps: false });
@@ -45,18 +43,7 @@ const EmblaCarousel = ({ slides }) => {
                     ))}
                 </div>
             </div>
-            <PrevButton onClick={scrollPrev} enabled={prevBtnEnabled} />
-            <NextButton onClick={scrollNext} enabled={nextBtnEnabled} />
         </div>
-    <div className="embla__dots">
-        {scrollSnaps.map((_, index) => (
-            <DotButton
-                key={index}
-                selected={index === selectedIndex}
-                onClick={() => scrollTo(index)}
-            />
-        ))}
-    </div>
             </>
 );
 };
