@@ -81,10 +81,10 @@ module.exports = {
             hr: { borderColor: theme('colors.gray.200') },
             'ol li:before': {
               fontWeight: '600',
-              color: theme('colors.gray.500'),
+              color: theme('colors.primary.500'),
             },
             'ul li:before': {
-              backgroundColor: theme('colors.gray.500'),
+              backgroundColor: theme('colors.primary.500'),
             },
             strong: { color: theme('colors.gray.600') },
             blockquote: {
