@@ -278,12 +278,14 @@ class ConnectState:
         self.board = [[0] * GameMeta.COLS for _ in range(GameMeta.ROWS)]
         self.to_play = GameMeta.PLAYERS['one']
         self.height = [GameMeta.ROWS - 1] * GameMeta.COLS
+        self.last_played = []
 
     def get_board(self):
         return deepcopy(self.board)
 
     def move(self, col):
         self.board[self.height[col]][col] = self.to_play
+        self.last_played = [self.height[col], col]
         self.height[col] -= 1
         self.to_play = GameMeta.PLAYERS['two'] if self.to_play == GameMeta.PLAYERS['one'] else GameMeta.PLAYERS['one']
 
@@ -291,27 +293,80 @@ class ConnectState:
         return [col for col in range(GameMeta.COLS) if self.board[0][col] == 0]
 
     def check_win(self):
-        for row in range(GameMeta.ROWS):
-            for col in range(GameMeta.COLS):
-                if self.board[row][col] != 0:
-                    if self.check_win_from(row, col):
-                        return self.board[row][col]
+        if len(self.last_played) > 0 and self.check_win_from(self.last_played[0], self.last_played[1]):
+            return self.board[self.last_played[0]][self.last_played[1]]
         return 0
 
     def check_win_from(self, row, col):
         player = self.board[row][col]
-        for dr, dc in ((0, 1), (1, 0), (1, 1), (1, -1)):
-            done = True
-            for i in range(1, 4):
-                if not (0 <= row + i * dr < GameMeta.ROWS and 0 <= col + i * dc < GameMeta.COLS):
-                    done = False
-                    break
-                if self.board[row + i * dr][col + i * dc] != player:
-                    done = False
-                    break
+        """
+        Last played action is at (row, col)
+        Check surrounding 7x7 grid for a win
+        """
 
-            if done:
-                return True
+        consecutive = 1
+        # Check horizontal
+        tmprow = row
+        while tmprow + 1 < GameMeta.ROWS and self.board[tmprow + 1][col] == player:
+            consecutive += 1
+            tmprow += 1
+        tmprow = row
+        while tmprow - 1 >= 0 and self.board[tmprow - 1][col] == player:
+            consecutive += 1
+            tmprow -= 1
+
+        if consecutive >= 4:
+            return True
+
+        # Check vertical
+        consecutive = 1
+        tmpcol = col
+        while tmpcol + 1 < GameMeta.COLS and self.board[row][tmpcol + 1] == player:
+            consecutive += 1
+            tmpcol += 1
+        tmpcol = col
+        while tmpcol - 1 >= 0 and self.board[row][tmpcol - 1] == player:
+            consecutive += 1
+            tmpcol -= 1
+
+        if consecutive >= 4:
+            return True
+
+        # Check diagonal
+        consecutive = 1
+        tmprow = row
+        tmpcol = col
+        while tmprow + 1 < GameMeta.ROWS and tmpcol + 1 < GameMeta.COLS and self.board[tmprow + 1][tmpcol + 1] == player:
+            consecutive += 1
+            tmprow += 1
+            tmpcol += 1
+        tmprow = row
+        tmpcol = col
+        while tmprow - 1 >= 0 and tmpcol - 1 >= 0 and self.board[tmprow - 1][tmpcol - 1] == player:
+            consecutive += 1
+            tmprow -= 1
+            tmpcol -= 1
+
+        if consecutive >= 4:
+            return True
+
+        # Check anti-diagonal
+        consecutive = 1
+        tmprow = row
+        tmpcol = col
+        while tmprow + 1 < GameMeta.ROWS and tmpcol - 1 >= 0 and self.board[tmprow + 1][tmpcol - 1] == player:
+            consecutive += 1
+            tmprow += 1
+            tmpcol -= 1
+        tmprow = row
+        tmpcol = col
+        while tmprow - 1 >= 0 and tmpcol + 1 < GameMeta.COLS and self.board[tmprow - 1][tmpcol + 1] == player:
+            consecutive += 1
+            tmprow -= 1
+            tmpcol += 1
+
+        if consecutive >= 4:
+            return True
 
         return False
 
