@@ -88,7 +88,7 @@ export async function getFileBySlug<T>(type: 'authors' | 'blog', slug: string | 
       ]
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
-        require('rehype-katex'),
+        [require('rehype-katex'), {ignoreMissing: true}],
         [require('rehype-prism-plus'), { ignoreMissing: true }],
         () => {
           return (tree) => {

@@ -1,0 +1,94 @@
+---
+title: Interesting Applications of the Bayes' Theorem
+date: '2023-1-07'
+tags: ['Probability','Artificial Intelligence', 'Natural Language Processing', 'Fun']
+draft: false
+summary: 'Ever wondered how spam detection, author identification, and many more worked? Read more about Bayes Theorem to find out!'
+---
+
+# Introduction
+
+Welcome back everyone to 2023! Bayes' Theorem is a simple probability statement that many people use as a baseline model for their natural language
+processing models to evaluate its performance. In this post, I'll derive what the Bayes' Theorem is and how to use it in spam detection, author
+identification, and other interesting applications that stemmed from such an easy probability statement!
+
+# Probability Party!
+
+Let's start by defining some notation.
+
+We define $P(A)$ as the probability of an event $A$ occurring. We define $P(A \cap B)$ as the probability of both event $A$ and event $B$ occurring.
+Lastly, we define $P(A \mid B)$ as the probability of event $A$ occurring given that event $B$ has occurred.
+
+Now we will derive the formula for Bayes' Theorem. To do so, we must figure out what $P(A \mid B)$ is. Let us imagine there is a jar with cube and
+spherical candies, and each candy can be either red or blue. For this example, there are 40 cube-shaped candy and 30 spherical candy, and there
+are 15 red candies that are also cube-shaped. If I were to ask you what is the probability of finding a red candy given that it's cube-shaped, you'd
+easily tell me $\frac{15}{40}=\frac{3}{8}$.
+
+From this example, we get that $P(A \mid B) = \frac{P(A \cap B)}{P(B)}$. Thus, $P(B \mid A) = \frac{P(B \cap A)}{P(A)}$. Knowing that
+$P(A \cap B) = P(B \cap A)$, we can rearrange the equations to get $P(A \mid B) = P(B \mid A) \cdot \frac{P(A)}{P(B)}$. And... that is the Bayes'
+Theorem.
+
+# So What Does This Mean?
+
+Many times we want to know $P(B \mid A)$ but we are only given values that let's us calculate $P(A \mid B)$. Take spam detection for example. We
+know the probability $P(word \mid spam)$ or $P(word \mid notspam)$ and we want to find the probability $P(spam \mid word)$ or vice versa.
+
+Since we have the labelled data of whether a piece of text is spam or not, we can easily fine $P(word \mid spam)$ by counting the frequencies of
+each word inside the spam; $P(word \mid notspam)$ can be found by the same method. As for $P(word)$ and $P(spam)$/$P(notspam)$, these are just their
+respective proportions in the data set.
+
+# Using Bayes' Theorem
+
+Now, I'll go over how this works using the example of text sentiment analysis. To start, I'll create a table with the frequencies of some words that
+belong to a positive sentences and negative sentences.
+
+| Word        | Positive    | Negative    |
+| ----------- | ----------- | ----------- |
+| I | 3 | 3 |
+| not | 2 | 3 |
+| sad | 1 | 3 |
+| happy | 3 | 1 |
+| learn | 2 | 2 |
+
+***Note this is just a made up table, you would build this table from the data in your projects.***
+
+To find $P(Positive \mid ``happy")$, we need $P(``happy" \mid Positive)$ which is $\frac{3}{11}$ and $P(``happy")$ which is $\frac{4}{23}$ and
+$P(Positive)$ which is $\frac{11}{23}$. Thus, $P(Positive \mid ``happy") = \frac{3}{11} \cdot \frac{11}{23} \cdot \frac{23}{4} = \frac{3}{4}$. We will
+do the same to find $P(Negative \mid ``happy") = \frac{1}{12} \cdot \frac{12}{23} \cdot \frac{23}{4} = \frac{1}{4}$. We see that the ratio of
+$\frac{P(Positive \mid ``happy")}{P(Negative \mid ``happy")} = 3 > 1$, so we conclude that the word has an overall positive sentiment. If we
+do this to every word in a sentence, and find $\prod_{i=1}^{m}\frac{P(Positive \mid word_i)}{P(Negative \mid word_i)}$. If this is greater than 1,
+then the sentence has positive sentiment, otherwise, negative sentiment.
+
+To account for imbalanced datasets where you have more of one sentiment and less of another, we make a slight modification to account for this.
+
+$$
+\frac{P(Positive)}{P(Negative)} \prod_{i=1}^{m}\frac{P(Positive \mid word_i)}{P(Negative \mid word_i)}
+$$
+
+To avoid any divide by zeros, we use a technique called Laplacian Smoothing which follows the form:
+$P(word \mid Positive) = \frac{\texttt{freq}(word,\;positive)+1}{C_p + U_w}$ where $C_p$ is the total Positive count and $U_w$ is the unique number of
+words. We add $U_w$ because we added 1 to the frequency for every unique word.
+
+Another issue with this is that we run the risk of receiving tiny numbers and underflowing. We can fix this by using a property of logs.
+
+$$
+log(\frac{P(Positive)}{P(Negative)} \prod_{i=1}^{m}\frac{P(Positive \mid word_i)}{P(Negative \mid word_i)})
+$$
+
+Turns into:
+
+$$
+log(\frac{P(Positive)}{P(Negative)}) + \sum_{i=1}^{m} log(\frac{P(Positive \mid word_i)}{P(Negative \mid word_i)})
+$$
+
+Now the bounds are $(-\infty, \infty)$, with positive being a text with positive sentiment and negative being a text with negative sentiment.
+
+# Other Applications
+
+After this example, you should be able to see that the Bayes' Theorem can also be applied to author identifications: what is the probability of this
+text's author being Shakespeare given this word, or what is the probability of this email being spam given this word. It is important to note that
+this is only a purely probabilistic approach towards analyzing the text and does not take into account the semantics of a sentence; therefore,
+it will not work in certain scenarios. However, this is a great baseline model to test the different natural language processing models that you
+create!
+
+Hope you guys enjoyed this post, and I'll see y'all in the next one!
