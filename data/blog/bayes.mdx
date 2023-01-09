@@ -78,7 +78,13 @@ $$
 Turns into:
 
 $$
-log(\frac{P(Positive)}{P(Negative)}) + \sum_{i=1}^{m} log(\frac{P(Positive \mid word_i)}{P(Negative \mid word_i)})
+log(\frac{P(Positive)}{P(Negative)})
+$$
+
+added to
+
+$$
+\sum_{i=1}^{m} log(\frac{P(Positive \mid word_i)}{P(Negative \mid word_i)})
 $$
 
 Now the bounds are $(-\infty, \infty)$, with positive being a text with positive sentiment and negative being a text with negative sentiment.
