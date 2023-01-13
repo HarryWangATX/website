@@ -25,7 +25,7 @@
     "less-loader": "^11.0.0",
     "mdx-bundler": "^4.1.0",
     "next-themes": "^0.0.14",
-    "postcss": "^8.3.5",
+    "postcss": "^8.4.21",
     "preact": "^10.5.13",
     "react": "17.0.2",
     "react-dom": "17.0.2",
