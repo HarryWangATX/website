@@ -1,0 +1,178 @@
+---
+title: 'Basics of Neural Networks: Backpropagation Through Multi-variable Functions'
+date: '2023-01-30'
+tags: ['Machine Learning', 'Multivariable Calculus', 'Artificial Intelligence', 'Fun']
+draft: false
+summary: 'Wonder how to backprogate through a complex loss function in a neural network? Read more to find out!'
+---
+
+# Introduction
+
+One function that neural networks commonly use to evaluate it's performance on a training dataset is the loss function. For binary classification
+this function may look like:
+
+$$
+L = - \frac{1}{N} \sum_{i=1}^{N} y_i \log(\hat{y_i}) + (1-y_i) \log(1-\hat{y_i})
+$$
+
+Let me quickly explain this function for anyone who doesn't know. In binary classification, there are two classes: 0 or 1. Therefore, only
+half of the expression inside of the summation actually matters. The further away the predicted value (which is a probability) is from the
+correct class, the closer the component inside the log goes to zero which means the actual log value goes to negative infinity. There is a
+negative sign in front to ensure that the loss is always non-negative. Thus, the more accurate the model was, the lower the loss value.
+We divide the summation by the sample size $N$ to normalize it.
+
+Now, intuitively, we want to minimize this value because that would mean we are accurately predicting data in our training set. But how do
+we do that?
+
+# A Perceptron? What's that??
+
+![Perceptron Diagram](/static/images/Perceptron-unit.svg)
+
+<figcaption align="center">
+  <a
+    title="Rmoss92, CC BY-SA 4.0 &lt;https://creativecommons.org/licenses/by-sa/4.0&gt;, via Wikimedia Commons"
+    href="https://commons.wikimedia.org/wiki/File:Perceptron-unit.svg"
+  >
+    Image Source
+  </a>
+</figcaption>
+
+The diagram show above is a perceptron, or one unit in a layer in a multi-layer neural network. For each node, there are a number of inputs
+$x_0, x_1, \cdots, x_n$. Each of the input is multiplied by a parameter $w_i$, summed together, and lastly added to a bias parameter, $b$.
+
+$$
+\sum_{i=0}^n w_i x_i + b
+$$
+
+The result of this is then squished by an activation function, for this example we will be using the sigmoid activation function:
+
+$$
+S(x) = \frac{1}{1 + e^{-x}}
+$$
+
+The output of the perceptron, or what the sigmoid function returns is then passed into the next layer of the neural network until it reaches
+the final perceptron that outputs the answer of the machine learning tasks. After predicting, the answer across all of the training samples are
+evaluated on the loss function, which tells us the amount our model can be improved by.
+
+Please note that there are a wide variety of different activation functions: ReLU, Leaky ReLU, tanh function, etc. For more information about
+these, feel free to read this [wiki post](https://en.wikipedia.org/wiki/Activation_function)!
+
+# Updating Parameters
+
+As seen in the perceptron model, the neural network determines the answer based on the parameters $w_i$ and $b$. So how would the neural
+network update these parameters to improve its performance?
+
+Let's think back to some calculus. The derivative of a curve at point $x$ tells us how much the value of $y$ changes. For example, given this
+function:
+
+$$
+y = 2x^2 + 4x + 5
+$$
+
+We get:
+
+$$
+y' = 4x + 4
+$$
+
+Therefore, $y'(4) = 20$ tells us that increasing $x$ by a small value at $x=4$ also increases the value of $y$.
+
+So what does this have to do with a loss function? Well, let's talk about partials a little. A partial is the equivalent of a derivative but
+only for multi-variable functions. Specifically, we want to take the partial of the loss function with respect to each of our parameters to
+find out how much we should update each parameter in every episode.
+
+Suppose we have a multivariable function:
+
+$$
+f(x, y, z) = z^3 + xy + 3x
+$$
+
+Let's take the partial of this function with respect to z:
+
+$$
+\frac{\partial f}{\partial z} = 3z^2
+$$
+
+By evaluating $\frac{\partial f}{\partial z} \bigr|_{z=3} = 27$, we know that by increasing $z$, the value of the function $f(x,y,z)$ will
+also increase.
+
+This same idea applies to neural networks, if we calculate $\frac{\partial L}{\partial w_i}$, we can easily find how much to update each
+parameter by. The hard part... is how... The loss function is the result of tons of parameters, making it impossible to calculate all
+parameters by hand.
+
+# Backpropagation, finally
+
+To learn the concept behind recursively backpropagating through the loss function, we will use a way way way more simplified example.
+In this example, we will use $a, b, c$ as the parameters to train on. The series of steps that our watered down "neural network" takes:
+
+$$
+d = a * b + c \\
+e = 2 * d \\
+f = e + 2
+$$
+
+Expanding the whole expression, we get:
+
+$$
+f = 2 \cdot (a \cdot b + c) + 2
+$$
+
+![Backpropagation Function Diagram](/static/images/backpropfunction.svg)
+
+The above image splits function $f$ into a series of basic computations, which is helpful in visualizing how the gradients of each variable
+is backpropagated through the function.
+
+Let's start with variable $f$. What is $\frac{\partial f}{\partial f}$? Unsurprisingly, the answer is 1. This means if we increase the
+value of $f$ by $x$ amount, $f$ will also increase by $x$ amount. Wow.
+
+Now let's find $\frac{\partial f}{\partial e}$. We know $f = e + 2$, thus, $\frac{\partial f}{\partial e} = 1$.
+
+Everything has been fairly simple so far, but this next one get's a little more complicated. We need to find $\frac{\partial f}{\partial d}$.
+So how do we do that? Recall the chain rule in calculus? It states:
+
+$$
+\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}
+$$
+
+To account for multiple variables, we simply exchange them with partials to get:
+
+$$
+\frac{\partial y}{\partial x} = \frac{\partial y}{\partial u} \cdot \frac{\partial u}{\partial x}
+$$
+
+Since we know $\frac{\partial f}{\partial e}$ from the previous step, we can easily find $\frac{\partial f}{\partial d}$, which turns out
+to be $\frac{\partial f}{\partial e} \cdot \frac{\partial e}{\partial d}$.
+
+We know that $e = 2 \cdot d$, so $\frac{\partial e}{\partial d} = 2$, which gives $\frac{\partial f}{\partial d} = \frac{\partial f}{\partial e} \cdot \frac{\partial e}{\partial d} = 2 \cdot 1 = 2$.
+
+There might be a pattern that you are noticing! When the operation is multiplication, the partial derivative is simply the value of the
+other value multipled by the previous step's partial derivative. When the operation is addition, the partial derivative is just 1 times the
+previous step's partial derivative.
+
+There are a few more operations to figure out, which I will leave as an exercise to you! Try to find the rules for powers, subtraction, and
+division (which is really just a power by to the -1)! To start, try finding the partial derivatives of $L$ with respect to the rest of the
+variables (the diagram of the expression above may help).
+
+# Why is it called Gradient Descent?
+
+You maybe have heard that the process of updating parameters in neural networks is called Gradient Descent, but why is that? To start, let's
+write the definition of a gradient:
+
+$$
+\nabla f(x,y,k) =\frac{\partial f}{\partial x} \hat{i} + \frac{\partial f}{\partial y} \hat{j} +\frac{\partial f}{\partial k} \hat{z}
+$$
+
+Does this look similar to what we have already done? Yes!
+
+$$
+\nabla L(w_0, \cdots, w_n, b) = \langle \frac{\partial L}{\partial w_0}, \cdots, \frac{\partial L}{\partial w_n}, \frac{\partial L}{\partial b} \rangle
+$$
+
+Of course, this is the direction in the greatest change, which would be a increase in the loss function. We, however, want to minimize the
+value from $L$, so instead of adding in this direction, we add the negative of this direction to our parameters.
+
+# Conclusion
+
+That's it for this time! Hopefully, that was helpful towards your understanding of neural networks and the underlying process behind them.
+Make sure to do the little exercise I left to solidify your knowledge (you might need to brush up on some calculus rules!). If there are
+any questions, feel free to contact me. I'll see you all in the next post!
