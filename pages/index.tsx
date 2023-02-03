@@ -1,15 +1,16 @@
 import Link from '@/components/Link'
-import { PageSeo } from '@/components/SEO'
+import { PageSEO } from '@/components/SEO'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
 import { getAllFilesFrontMatter } from '@/lib/mdx'
 import formatDate from '@/lib/utils/formatDate'
 import { GetStaticProps, InferGetStaticPropsType } from 'next'
 import { PostFrontMatter } from 'types/PostFrontMatter'
-import React from "react";
-import Typing from '@/components/Typing'
 import Particles from 'react-tsparticles'
-import NewsletterForm from "@/components/NewsletterForm";
+import type { Container, Engine } from "tsparticles-engine";
+import { loadFull } from "tsparticles";
+import React, {useCallback} from "react";
+import Typing from "@/components/Typing";
 
 const MAX_DISPLAY = 5
 
@@ -19,127 +20,103 @@ export const getStaticProps: GetStaticProps<{ posts: PostFrontMatter[] }> = asyn
   return { props: { posts } }
 }
 
-export default function Home({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
-    const postsRef = React.useRef<HTMLHeadingElement>();
 
-  // @ts-ignore
-    return (
+export default function Home({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
+  const particlesInit = useCallback(async (engine: Engine) => {
+    console.log(engine);
+
+    // you can initialize the tsParticles instance (engine) here, adding custom shapes or presets
+    // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
+    // starting from v2 you can add only the features you need reducing the bundle size
+    await loadFull(engine);
+  }, []);
+
+  const particlesLoaded = useCallback(async (container: Container | undefined) => {
+    await console.log(container);
+  }, []);
+
+  const postsRef = React.useRef<HTMLHeadingElement>();
+
+  //ts-ignore
+  return (
     <>
-      <PageSeo title={siteMetadata.title} description={siteMetadata.description} />
-      <div style={{position: "absolute", width:"100%", left: "0", height: "78vh"}}>
-          <Particles style={{height:"78vh"}}
-              params={{
-                  "particles": {
-                      "number": {
-                          "value": 150,
-                          "density": {
-                              "enable": true,
-                              "value_area": 1803.4120608655228
-                          }
-                      },
-                      "color": {
-                          "value": "#808080"
-                      },
-                      "shape": {
-                          "type": "circle",
-                          "stroke": {
-                              "width": 2,
-                              "color": "#808080"
-                          },
-                          "polygon": {
-                              "nb_sides": 4
-                          },
-                          "image": {
-                              "src": "img/github.svg",
-                              "width": 100,
-                              "height": 100
-                          }
-                      },
-                      "opacity": {
-                          "value": 0.4008530152163807,
-                          "random": false,
-                          "anim": {
-                              "enable": false,
-                              "speed": 1,
-                              "opacity_min": 0.1,
-                              "sync": false
-                          }
-                      },
-                      "size": {
-                          "value": 1.5,
-                          "random": true,
-                          "anim": {
-                              "enable": false,
-                              "speed": 40,
-                              "size_min": 0.1,
-                              "sync": false
-                          }
-                      },
-                      "line_linked": {
-                          "enable": true,
-                          "distance": 150,
-                          "color": "#808080",
-                          "opacity": 0.3687847739990702,
-                          "width": 0.6413648243462091
-                      },
-                      "move": {
-                          "enable": true,
-                          "speed": 4,
-                          "direction": "none",
-                          "random": false,
-                          "straight": false,
-                          "out_mode": "out",
-                          "bounce": false,
-                          "attract": {
-                              "enable": false,
-                              "rotateX": 600,
-                              "rotateY": 1200
-                          }
-                      }
+      <PageSEO title={siteMetadata.title} description={siteMetadata.description} />
+      <div style={{position: "absolute", width:"100%", left: "0", height: "80vh"}}>
+        <Particles
+            id="tsparticles"
+            init={particlesInit}
+            loaded={particlesLoaded}
+            options={{
+              fpsLimit: 120,
+              interactivity: {
+                events: {
+                  onClick: {
+                    enable: true,
+                    mode: "push",
                   },
-                  "interactivity": {
-                      "detect_on": "window",
-                      "events": {
-                          "onhover": {
-                              "enable": true,
-                              "mode": "repulse"
-                          },
-                          "onclick": {
-                              "enable": false,
-                              "mode": "bubble"
-                          },
-                          "resize": true
-                      },
-                      "modes": {
-                          "grab": {
-                              "distance": 400,
-                              "line_linked": {
-                                  "opacity": 1
-                              }
-                          },
-                          "bubble": {
-                              "distance": 400,
-                              "size": 40,
-                              "duration": 2,
-                              "opacity": 8,
-                          },
-                          "repulse": {
-                              "distance": 100,
-                              "duration": 0.4
-                          },
-                          "push": {
-                              "particles_nb": 4
-                          },
-                          "remove": {
-                              "particles_nb": 2
-                          }
-                      }
+                  onHover: {
+                    enable: true,
+                    mode: "repulse",
                   },
-                  "retina_detect": true
-              }} />
+                  resize: true,
+                },
+                modes: {
+                  push: {
+                    quantity: 2,
+                  },
+                  repulse: {
+                    distance: 100,
+                    duration: 0.4,
+                  },
+                },
+              },
+              particles: {
+                color: {
+                  value: "#808080",
+                },
+                links: {
+                  color: "#808080",
+                  distance: 150,
+                  enable: true,
+                  opacity: 0.5,
+                  width: 1,
+                },
+                collisions: {
+                  enable: true,
+                },
+                move: {
+                  direction: "none",
+                  enable: true,
+                  outModes: {
+                    default: "bounce",
+                  },
+                  random: false,
+                  speed: 3,
+                  straight: false,
+                },
+                number: {
+                  density: {
+                    enable: true,
+                    area: 800,
+                  },
+                  value: 60,
+                },
+                opacity: {
+                  value: 0.5,
+                },
+                shape: {
+                  type: "circle",
+                },
+                size: {
+                  value: { min: 1, max: 3 },
+                },
+              },
+              detectRetina: true,
+            }}
+        />
       </div>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className={"w-full max-w-5xl mx-auto flex flex-col items-center"} style={{padding: "0 5rem 0 5rem", minHeight: '80vh'}}>
+        <div className={"w-full max-w-5xl mx-auto flex flex-col items-center"} style={{padding: "0 5rem 0 5rem", minHeight: '83vh'}}>
           <div className={"w-full self-start text-dark-900 dark:text-gray-50"} style={{position:"relative", top:"50%"}}>
             <h2
                 className={
@@ -160,33 +137,36 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
               >
                 Welcome
               </span>
-                {" "} to my blog!
+              {" "} to my blog!
             </h1>
             <h3 className={"text-2xl sm:text-5xl 2xl:text-7xl mt-3"}>
               <Typing>
                 {[
-                    "I'm a programmer.",
-                    "I'm a web enthusiast.",
-                    "I love solving problems.",
-                    "Enjoy!"
+                  "I'm a programmer.",
+                  "I'm a web enthusiast.",
+                  "I love solving problems.",
+                  "Enjoy!"
                 ]}
               </Typing>
             </h3>
           </div>
           <Link href={"#latest"} style={{display: "flex", justifyContent: "center"}}>
-              <a onClick={(e) => {
-                  e.preventDefault();
-                  postsRef.current.scrollIntoView({ behavior: "smooth" });
-              }} className={"focus-invisible absolute animate-bounce"} style={{top: "90%"}}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="35px" height="auto" fill="currentColor"
-                       className="bi bi-arrow-down-circle" viewBox="0 0 16 16">
-                      <path fillRule={"evenodd"}
-                            d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
-                  </svg>
-              </a>
+            <a
+                aria-hidden={"true"}
+                role={"button"}
+                onMouseDown={(e) => {
+                e.preventDefault()
+              postsRef.current.scrollIntoView({ behavior: "smooth" });
+            }} className={"focus-invisible absolute animate-bounce"} style={{top: "90%"}}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="35px" height="auto" fill="currentColor"
+                   className="bi bi-arrow-down-circle" viewBox="0 0 16 16">
+                <path fillRule={"evenodd"}
+                      d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
+              </svg>
+            </a>
           </Link>
         </div>
-        <div className="pt-6 pb-8 space-y-2 md:space-y-5">
+        <div className="space-y-2 pt-6 pb-8 md:space-y-5">
           <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14" ref={postsRef}>
             Latest
           </h1>
@@ -201,7 +181,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
             return (
               <li key={slug} className="py-12">
                 <article>
-                  <div className="space-y-2 xl:grid xl:grid-cols-4 xl:space-y-0 xl:items-baseline">
+                  <div className="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
                     <dl>
                       <dt className="sr-only">Published on</dt>
                       <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
@@ -225,7 +205,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                             ))}
                           </div>
                         </div>
-                        <div className="prose text-gray-500 max-w-none dark:text-gray-400">
+                        <div className="prose max-w-none text-gray-500 dark:text-gray-400">
                           {summary}
                         </div>
                       </div>
@@ -258,9 +238,9 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
         </div>
       )}
       {/*{siteMetadata.newsletter.provider !== '' && (*/}
-      {/*    <div className="flex items-center justify-center pt-4">*/}
-      {/*        <NewsletterForm />*/}
-      {/*    </div>*/}
+      {/*  <div className="flex items-center justify-center pt-4">*/}
+      {/*    <NewsletterForm />*/}
+      {/*  </div>*/}
       {/*)}*/}
     </>
   )

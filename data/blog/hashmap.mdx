@@ -5,6 +5,14 @@ tags: ['CP', 'Data Structures', 'Java']
 draft: false
 summary: 'Wondering how HashMaps/Dictionaries are implemented internally? Read more to find out!'
 ---
+
+import TOCInline from "@/components/TOCInline";
+
+# Overview
+
+<TOCInline toc={props.toc} exclude="Overview" toHeading={2} asDisclosure />
+<br />
+
 # Introduction
 
 Welcome back to another post! Today, we will be learning about how HashMaps work internally and a potential way to implement them. Before I start, I will explain what a HashMap is. A HashMap is a data structure that stores Key-Value Pairs. For example Key: $12$, Value: $213$. Pairs like those. Now, these pairs can be anything, it can be a String - String pair, it can be an Integer - String pair, etc. But the most important characteristic that makes HashMap unique from other data structures is its runtime. A HashMap has 4 main functions, `get()`, `put()`, `remove()`, and `contains()` all of which runs in an average of constant time, $\mathcal O(1)$. Note that I did not say constant time, I said an average of constant time. At first, this might seem suspicious as usually the contains function is a linear time function; however after I explain each individual method, you should be able to understand how HashMaps accomplish this.

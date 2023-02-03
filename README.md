@@ -1,1 +1,1 @@
-[My blog](https://harrycodes.com) :)
+My blog :)
