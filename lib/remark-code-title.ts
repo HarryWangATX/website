@@ -1,9 +1,9 @@
 import { Parent } from 'unist'
-import visit from 'unist-util-visit'
+import { visit } from 'unist-util-visit'
 
-export default function codeTitles() {
+export default function remarkCodeTitles() {
   return (tree: Parent & { lang?: string }) =>
-    visit(tree, 'code', (node: Parent & { lang?: string }, index) => {
+    visit(tree, 'code', (node: Parent & { lang?: string }, index, parent: Parent) => {
       const nodeLang = node.lang || ''
       let language = ''
       let title = ''
@@ -27,7 +27,7 @@ export default function codeTitles() {
         data: { _xdmExplicitJsx: true },
       }
 
-      tree.children.splice(index, 0, titleNode)
+      parent.children.splice(index, 0, titleNode)
       node.lang = language
     })
 }

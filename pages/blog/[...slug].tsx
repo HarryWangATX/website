@@ -6,6 +6,7 @@ import { formatSlug, getAllFilesFrontMatter, getFileBySlug, getFiles } from '@/l
 import { GetStaticProps, InferGetStaticPropsType } from 'next'
 import { AuthorFrontMatter } from 'types/AuthorFrontMatter'
 import { PostFrontMatter } from 'types/PostFrontMatter'
+import { Toc } from 'types/Toc'
 
 const DEFAULT_LAYOUT = 'PostLayout'
 
@@ -21,8 +22,9 @@ export async function getStaticPaths() {
   }
 }
 
+// @ts-ignore
 export const getStaticProps: GetStaticProps<{
-  post: { mdxSource: string; frontMatter: PostFrontMatter }
+  post: { mdxSource: string; toc: Toc; frontMatter: PostFrontMatter }
   authorDetails: AuthorFrontMatter[]
   prev?: { slug: string; title: string }
   next?: { slug: string; title: string }
@@ -33,6 +35,7 @@ export const getStaticProps: GetStaticProps<{
   const prev: { slug: string; title: string } = allPosts[postIndex + 1] || null
   const next: { slug: string; title: string } = allPosts[postIndex - 1] || null
   const post = await getFileBySlug<PostFrontMatter>('blog', slug)
+  // @ts-ignore
   const authorList = post.frontMatter.authors || ['default']
   const authorPromise = authorList.map(async (author) => {
     const authorResults = await getFileBySlug<AuthorFrontMatter>('authors', [author])
@@ -41,8 +44,10 @@ export const getStaticProps: GetStaticProps<{
   const authorDetails = await Promise.all(authorPromise)
 
   // rss
-  const rss = generateRss(allPosts)
-  fs.writeFileSync('./public/feed.xml', rss)
+  if (allPosts.length > 0) {
+    const rss = generateRss(allPosts)
+    fs.writeFileSync('./public/feed.xml', rss)
+  }
 
   return {
     props: {
@@ -60,13 +65,14 @@ export default function Blog({
   prev,
   next,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const { mdxSource, frontMatter } = post
+  const { mdxSource, toc, frontMatter } = post
 
   return (
     <>
       {'draft' in frontMatter && frontMatter.draft !== true ? (
         <MDXLayoutRenderer
           layout={frontMatter.layout || DEFAULT_LAYOUT}
+          toc={toc}
           mdxSource={mdxSource}
           frontMatter={frontMatter}
           authorDetails={authorDetails}

@@ -5,6 +5,7 @@ import fs from 'fs'
 
 export default function ImgToJsx() {
   return (tree: Node) => {
+    // @ts-ignore
     visit<Node>(
       tree,
       // only visit p tags that contain an img element

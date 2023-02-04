@@ -7,6 +7,12 @@ summary: 'Fascinated by how computers can recognize images? Read more to find ou
 ---
 
 import PDFViewer from "@/components/PDFViewer";
+import TOCInline from "@/components/TOCInline";
+
+# Overview
+
+<TOCInline toc={props.toc} exclude="Overview" toHeading={2} asDisclosure />
+<br />
 
 # Introduction
 
@@ -104,14 +110,14 @@ $$
 \begin{bmatrix}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
-  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
-  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
-  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
-  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
-  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0\\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0 \\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0 \\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0 \\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0 \\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0 \\
+  0 & 0 & 2 & 2 & 0 & 0 & 2 & 2 & 0 & 0 \\
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
 \end{bmatrix}
 $$
 
@@ -138,7 +144,7 @@ Max Pooling with a size of $2 \times 2$ and a stride of $2$:
 $$
 \begin{bmatrix}
   5 & 8 \\
-  5 & 6 \\
+  5 & 6
 \end{bmatrix}
 $$
 
@@ -147,7 +153,7 @@ Average Pooling with a size of $2 \times 2$ and a stride of $2$:
 $$
 \begin{bmatrix}
   3 & 6.25 \\
-  2.5 & 3.5 \\
+  2.5 & 3.5
 \end{bmatrix}
 $$
 

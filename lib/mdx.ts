@@ -1,31 +1,29 @@
-import { Node } from 'unist'
 import { bundleMDX } from 'mdx-bundler'
 import fs from 'fs'
 import matter from 'gray-matter'
 import path from 'path'
 import readingTime from 'reading-time'
-import visit from 'unist-util-visit'
-import codeTitles from './remark-code-title'
-import imgToJsx from './img-to-jsx'
 import getAllFilesRecursively from './utils/files'
 import { PostFrontMatter } from 'types/PostFrontMatter'
 import { AuthorFrontMatter } from 'types/AuthorFrontMatter'
+import { Toc } from 'types/Toc'
+// Remark packages
+import remarkGfm from 'remark-gfm'
+import remarkFootnotes from 'remark-footnotes'
+import remarkMath from 'remark-math'
+import remarkExtractFrontmatter from './remark-extract-frontmatter'
+import remarkCodeTitles from './remark-code-title'
+import remarkTocHeadings from './remark-toc-headings'
+import remarkImgToJsx from './remark-img-to-jsx'
+// Rehype packages
+import rehypeSlug from 'rehype-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeKatex from 'rehype-katex'
+import rehypeCitation from 'rehype-citation'
+import rehypePrismPlus from 'rehype-prism-plus'
+import rehypePresetMinify from 'rehype-preset-minify'
 
 const root = process.cwd()
-
-const tokenClassNames = {
-  tag: 'text-code-red',
-  'attr-name': 'text-code-yellow',
-  'attr-value': 'text-code-green',
-  deleted: 'text-code-red',
-  inserted: 'text-code-green',
-  punctuation: 'text-code-white',
-  keyword: 'text-code-purple',
-  string: 'text-code-green',
-  function: 'text-code-blue',
-  boolean: 'text-code-red',
-  comment: 'text-gray-400 italic',
-}
 
 export function getFiles(type: 'blog' | 'authors') {
   const prefixPaths = path.join(root, 'data', type)
@@ -53,53 +51,39 @@ export async function getFileBySlug<T>(type: 'authors' | 'blog', slug: string | 
 
   // https://github.com/kentcdodds/mdx-bundler#nextjs-esbuild-enoent
   if (process.platform === 'win32') {
-    process.env.ESBUILD_BINARY_PATH = path.join(
-      process.cwd(),
-      'node_modules',
-      'esbuild',
-      'esbuild.exe'
-    )
+    process.env.ESBUILD_BINARY_PATH = path.join(root, 'node_modules', 'esbuild', 'esbuild.exe')
   } else {
-    process.env.ESBUILD_BINARY_PATH = path.join(
-      process.cwd(),
-      'node_modules',
-      'esbuild',
-      'bin',
-      'esbuild'
-    )
+    process.env.ESBUILD_BINARY_PATH = path.join(root, 'node_modules', 'esbuild', 'bin', 'esbuild')
   }
 
-  const { frontmatter, code } = await bundleMDX(source, {
+  const toc: Toc = []
+
+  const { code, frontmatter } = await bundleMDX({
+    source,
     // mdx imports can be automatically source from the components directory
-    cwd: path.join(process.cwd(), 'components'),
-    xdmOptions(options) {
+    cwd: path.join(root, 'components'),
+    xdmOptions(options, frontmatter) {
       // this is the recommended way to add custom remark/rehype plugins:
       // The syntax might look weird, but it protects you in case we add/remove
       // plugins in the future.
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
-        require('remark-slug'),
-        require('remark-autolink-headings'),
-        require('remark-gfm'),
-        codeTitles,
-        [require('remark-footnotes'), { inlineNotes: true }],
-        require('remark-math'),
-        imgToJsx,
+        remarkExtractFrontmatter,
+        [remarkTocHeadings, { exportRef: toc }],
+        remarkGfm,
+        remarkCodeTitles,
+        [remarkFootnotes, { inlineNotes: true }],
+        remarkMath,
+        remarkImgToJsx,
       ]
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
-        [require('rehype-katex'), {ignoreMissing: true}],
-        [require('rehype-prism-plus'), { ignoreMissing: true }],
-        () => {
-          return (tree) => {
-            visit<Node & { properties: { className: string[] } }>(tree, 'element', (node) => {
-              const [token, type] = node.properties.className || []
-              if (token === 'token') {
-                node.properties.className = [tokenClassNames[type]]
-              }
-            })
-          }
-        },
+        rehypeSlug,
+        rehypeAutolinkHeadings,
+        rehypeKatex,
+        [rehypeCitation, { path: path.join(root, 'data') }],
+        [rehypePrismPlus, { ignoreMissing: true }],
+        rehypePresetMinify,
       ]
       return options
     },
@@ -114,11 +98,13 @@ export async function getFileBySlug<T>(type: 'authors' | 'blog', slug: string | 
 
   return {
     mdxSource: code,
+    toc,
     frontMatter: {
       readingTime: readingTime(code),
       slug: slug || null,
       fileName: fs.existsSync(mdxPath) ? `${slug}.mdx` : `${slug}.md`,
-      ...(frontmatter as T),
+      ...frontmatter,
+      date: frontmatter.date ? new Date(frontmatter.date).toISOString() : null,
     },
   }
 }
@@ -139,9 +125,13 @@ export async function getAllFilesFrontMatter(folder: 'blog') {
     }
     const source = fs.readFileSync(file, 'utf8')
     const matterFile = matter(source)
-    const data = matterFile.data as AuthorFrontMatter | PostFrontMatter
-    if ('draft' in data && data.draft !== true) {
-      allFrontMatter.push({ ...data, slug: formatSlug(fileName) })
+    const frontmatter = matterFile.data as AuthorFrontMatter | PostFrontMatter
+    if ('draft' in frontmatter && frontmatter.draft !== true) {
+      allFrontMatter.push({
+        ...frontmatter,
+        slug: formatSlug(fileName),
+        date: frontmatter.date ? new Date(frontmatter.date).toISOString() : null,
+      })
     }
   })
 
