@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Document, Page, pdfjs } from "react-pdf";
 
 // import 'css/pdf.less'
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.js`;
 
 const options = {
     cMapUrl: 'cmaps/',
@@ -35,9 +35,10 @@ const PDFViewer = ({filePath}) => {
         <div>
             <Document
                 file={filePath}
+                renderMode={"canvas"}
                 onLoadSuccess={onDocumentLoadSuccess}
             >
-                <Page pageNumber={pageNumber} renderTextLayer={false} renderAnnotations={false}/>
+                <Page pageNumber={pageNumber} renderTextLayer={false} renderAnnotationLayer={false}/>
 
                 <div className="page-controls">
                     <button
@@ -67,7 +68,7 @@ const PDFViewer = ({filePath}) => {
             </Document>
         </div>
 
-);
+    );
 }
 
 export default PDFViewer
@@ -77,27 +78,21 @@ import React, { useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-
 import './Sample.css';
-
 const options = {
   cMapUrl: 'cmaps/',
   cMapPacked: true,
   standardFontDataUrl: 'standard_fonts/',
 };
-
 export default function Sample() {
   const [file, setFile] = useState('./sample.pdf');
   const [numPages, setNumPages] = useState(null);
-
   function onFileChange(event) {
     setFile(event.target.files[0]);
   }
-
   function onDocumentLoadSuccess({ numPages: nextNumPages }) {
     setNumPages(nextNumPages);
   }
-
   return (
     <div className="Example">
       <header>
