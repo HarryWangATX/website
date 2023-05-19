@@ -1,0 +1,143 @@
+---
+title: you only live... wait... look once (YOLO) Object Detection
+date: '2023-05-18'
+tags: ['Artificial Intelligence', 'Computer Vision', 'Fun']
+draft: false
+summary: 'Want to learn about the state of the art object detection model YOLO? Read more to find out!'
+---
+
+import TOCInline from "@/components/TOCInline";
+import PDFViewer from "@/components/PDFViewer";
+
+# Overview
+
+<TOCInline toc={props.toc} exclude="Overview" indentDepth={2} asDisclosure />
+
+
+<br />
+
+# Introduction
+
+We can look at an image and instantly segment out the individual objects and their locations. Unfortunately, computers have a hard time doing 
+this. Until YOLO was released in 2015, the state-of-art object detection algorithms were primarily models that used classifiers which were 
+ran on different parts of the image to generate the bounding box ([DPM](https://cs.brown.edu/people/pfelzens/papers/lsvm-pami.pdf)), using 
+image segmentation then running a classifer through the segmented areas 
+([Selective Search](http://www.huppelen.nl/publications/selectiveSearchDraft.pdf)), or with a 
+[Regional Proposal Network](https://arxiv.org/pdf/1506.01497.pdf) which proposes the 
+bounding boxes and then runs a classifer on these boxes. These models all have one common similarity, which is that they evaluate parts of 
+the image many many times making it very slow and not fit for realtime inferencing.
+
+Enters YOLO (You Only Look Once) 😎
+
+# YOLO
+
+Just like the name suggests, YOLO takes the entire image and outputs the bounding boxes, allowing it to be fast and accurate enough for 
+little latency in realtime inferencing. So how does this work?? The paper is attached for anyone interested.
+
+ <PDFViewer filePath="/static/pdfs/yolo.pdf" />
+
+## Let's Split the image
+
+![Gridded Image](/static/images/grid_image.png)
+
+<figcaption align="center">
+  From YOLO Paper Above
+</figcaption>
+
+As stated in the paper above, the idea of YOLO is to simplify the problem into simple regression which can be done with just a CNN.
+To do this, we split the image into a $S \times S$ grid, where each grid cell is responsible for predicting $B$ bounding boxes. A bounding 
+box is defined by a few parameters, how confident that there is an object in this grid and how accurately the box predicts it, 
+the $x, y$ position of the bounding box, and its $w, h$ for width and height. Below is a vector visualization:
+
+$$
+\begin{bmatrix}
+  p_o \\
+  x \\
+  y \\
+  w \\
+  h \\
+\end{bmatrix}
+$$
+
+Therefore, the output of this network is $S \times S \times (B \cdot 5 + C)$. $C$ represents the number of possible classes in the image, 
+and it represents probabilities of the object in the drawn bounding box being of that respective class. You might notice a possible 
+problem with this approach: what if there are two different objects in the same grid cell? We will cover the solution to this later 
+in this blog post. Improvements were made which led to YoloV2.
+
+I won't go over the specific CNN architecture that they used for this (described in the paper above), but the main idea is to generate this
+matrix and prune the predictions from there.
+
+## Eliminating Overlapping Bounding Boxes
+
+![Overlapping Bounding Boxes](/static/images/overlapping_grids.png)
+
+<figcaption align="center">
+  From YOLO Paper Above
+</figcaption>
+
+So... what about all these boxes?!?! We only want three of them!
+
+### A method that WON'T work
+
+The model predicts the confidence of each bounding box, so why don't we just take the max confidence and discard every other box drawn! 
+This seems like a great idea, but... it is WRONG. What if the image had two different objects of the same class in different locations? 
+This method completely ignores multiple objects of the same class, so we will need a new solution.
+
+### A method that WILL work
+
+First let's introduce a metric called IOU (intersection over union). The IOU of two bounding boxes is their intersection area divided by 
+the union of their total area.
+
+$$
+IOU = \frac{intersection_{area}}{union_{area}}
+$$
+
+We use this metric to see whether the two bounding boxes given is refering to that same object on screen. A high $IOU$ indicates that the 
+boxes are overlapping and vise versa. So instead of taking the max confidence out of every bounding box, we can have a threshold such as 
+$IOU = 0.65$, and take the max confidence of boxes that are overlapping, determined by the $IOU$ threshold. This process is called 
+non max suppression, and after processing the predicted boxes, we are left with the final detections.
+
+## Problem...
+
+So back to the problem of multiple objects of different classes in that same cell... What can be done?? Firstly, if the grid cells are small 
+enough, then this problem is basically non existent. However, this dramatically increases the amount of computations and doesn't really 
+solve the issue because decreasing the grid cell size could decrease performance with objects of different sizes and aspect ratios.
+
+In YOLOv2, the authors proposed the use of anchor boxes. Anchor boxes are a set of predefined boxes that have a certain width and height 
+that you assign based on the objects that you will be detecting. Then instead of predicting the location and size of bounding boxes, 
+the YOLOv2 network predicts the offsets from the predefined anchor boxes. This helps solve the first problem of objects of different sizes 
+and aspect ratios. However, we still need to fix the problem where there are multiple object classes in a grid. 
+
+The YOLOv2 authors suggested a simple fix:
+
+> When we move to anchor boxes we also decouple the class prediction mechanism from the spatial location and instead predict class and objectness for every anchor box.
+
+We simply predict $B$ anchor boxes with their own class probabilities, which fixes this issue. The prediction vector for one cell would look 
+like this (assume there are only 2 classes):
+
+$$
+\begin{bmatrix}
+  p_{o1} \\
+  x_1 \\
+  y_1 \\
+  w_1 \\
+  h_1 \\
+  c_{11} \\
+  c_{21} \\
+  p_{o2} \\
+  x_2 \\
+  y_2 \\
+  w_2 \\
+  h_2 \\
+  c_{12} \\
+  c_{22} \\
+\end{bmatrix}
+$$
+
+Based on the dataset you are working with, you can define how many anchor boxes to predict and this solves the issue seen in YOLOv1.
+
+# Conclusion
+
+So this is essentially how the YOLO network works. If you are curious about the performance of this model compared to others, they are 
+included in the paper attached above. In the upcoming posts, I might demonstrate how you can set up your own YOLO model and use it for 
+your custom case. See y'all next time!
