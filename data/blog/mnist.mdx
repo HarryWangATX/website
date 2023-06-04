@@ -1,0 +1,503 @@
+---
+title: 'Building Your First Neural Network From Scratch: A Step-by-Step Guide with the MNIST Dataset'
+date: '2023-05-30'
+tags: ['Artificial Intelligence', 'Calculus', 'Linear Algebra', 'Fun']
+draft: false
+summary: 'Have you ever wondered how a computer recognizes hand written digits? Read more to implement your own neural network for this task!'
+---
+
+import TOCInline from "@/components/TOCInline";
+import PDFViewer from "@/components/PDFViewer";
+
+# Overview
+
+<TOCInline toc={props.toc} exclude="Overview" indentDepth={2} asDisclosure />
+
+<br />
+
+# Introduction
+
+Hey everyone, welcome back! This post is one of my first posts that actually serves as a tutorial instead of introducing the concept, so 
+bear with me if the format is not as fine tuned. Also for the first time, there is a substantial prerequisite to this blog. Most 
+importantly, I am assuming the knowledge of how neural networks work from a fundamental level. If you don't know, that's completely fine! 
+I recommend watching this [video series](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) by 
+3Blue1Brown to get started. Feel free to return to this post after! Another prerequisite, though less important, is the knowledge of 
+calculus. It'll be fine if you aren't too confident, I will show most of the derivations in this blog. Anyways, let's get started 
+building our neural network.
+
+# What We Are Looking For
+
+Before diving into the specifics, let's go over what we ideally want to see as an end product. Obviously, we want the performance of this 
+model to be high. *Note: a multi-layer neural network is not the best way of doing image recognition, CNNs are much more fit for the task.* 
+However, for the MNIST dataset we should still be able to get a relatively high accuracy with a simple neural network. Lastly, we want a 
+neural network that can be trained quickly. Who wants to wait hours?!?!
+
+## Vectorization
+
+Vectorization is the process of doing operations on entire arrays instead of applying them individually. You can imagine it to be almost 
+parallelization. Essentially, in one forward pass of the neural network, we want to go through everything in the training sample, and in 
+one backward pass, we want to backpropagate through every parameter update. This often creates a neural network that is 10x faster and 
+potentially even higher with larger datasets. To do vectorization, we will be making use of the Numpy library which supports many types 
+of array operations and is much faster to begin with internally as it works with C.
+
+# Let's Talk Some Matrix Multiplications!
+
+As you may already know, a neural network is made of a bunch of parameters $w_i, b_i$. One neuron's value in the network is often 
+calculated like such:
+
+$$
+\sigma (\sum_{i=0}^{n} (w_i x_i) + b)
+$$
+
+The $\sigma$ represents the activation function. Following our goal of a efficient neural network, we will be vectorizing this process! So 
+we want to somehow get results for all of the neurons in a given layer... Matrix Multiplications! Let's say every layer has $c$ neurons with 
+$n$ inputs to each. We will create a $c \times n$ matrix with all the weight parameters in that layer, and a $c \times 1$ matrix for all 
+bias parameters. You can observe that with the input being $n \times m$ — $n$ being the size of the input, and $m$ being the amount of data 
+in the training dataset — we can multiply the weights matrix with this matrix and add the bias matrix on top of it to produce a 
+$c \times x$ matrix that contains the values for each neuron for each entry in the dataset before the activation function is applied.
+
+You can see that if we keep chaining the input matrix to the weights in the next layers, we are eventually left with a matrix with 
+values for the final layer. All of these is with simple matrix operations and dramatically reduces the runtime compared to using 
+`for` loops in python.
+
+# Architecture For MNIST Dataset
+
+To tackle this problem, we will use a neural network with 2 hidden layers of 16 neurons (with a tanh activation) connected to the input 
+of 784 (the image given is $28 \times 28$ which will be flattened and normalized) and lastly to an output of 10 neurons with a softmax 
+activation to calculate the probabilities of each class.
+
+Below we will write a few functions to initialize these parameters of our neural network. It is important to initilize the weight 
+parameters to be random small numbers so it is compatible with a gradient descent approach for learning.
+
+```python
+def initialize_parameters(n_in, n_outs):
+    """
+    Three Layer Neural Network (Hard Coded)
+    """
+    
+    np.random.seed(2)
+    
+    # Layer 1 parameters
+    W1 = np.random.randn(n_outs[0], n_in) * 0.1
+    b1 = np.zeros((n_outs[0], 1))
+    # Layer 2
+    W2 = np.random.randn(n_outs[1], n_outs[0]) * 0.1
+    b2 = np.zeros((n_outs[1], 1))
+    # Layer 3
+    W3 = np.random.randn(n_outs[2], n_outs[1]) * 0.1
+    b3 = np.zeros((n_outs[2], 1))
+    
+    parameters = {
+        'W1': W1,
+        'b1': b1,
+        'W2': W2,
+        'b2': b2,
+        'W3': W3,
+        'b3': b3
+    }
+    
+    return parameters
+  ```
+
+For this blog post, I've hardcoded the three layers. I tend to think this is more intuitive to understand rather than sticking layers 
+in a loop. Afterwards, it could be an exercise to reimplement this to work for any amount of layers with any amount of neurons in each.
+
+# Activation Functions
+
+Now let's implement the activation functions that we will be using for our neural network. If you do want to try other functions, that is 
+completely fine, just remeber that the back propagation process will be a little different because each activation's derivative is 
+different. For our neural network, we will be using the `tanh` activation and the `softmax` activation. Essentially, the tanh activation 
+squishes the outputs of the neurons into a value between -1 and 1, and the softmax activation transforms the outputs of the ten neurons in 
+the final layer to probabilities that add up to 1. The formulas for these functions are avaliable online, below are their implementations:
+
+```python
+def tanh(x):
+    return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+
+def softmax(x):
+    # remove largest value
+    expx = np.exp(x - np.max(x))
+    return expx / expx.sum(axis=0, keepdims=True)
+```
+
+One technique used to avoid overflowing with `np.exp()` is to subtract the largest element in the array from every element, the probabilities
+will stay the same.
+
+# Forward Propagation
+
+As described above, we are essentially just doing a few matrix multiplications and chaining the outputs of the previous layer into the next 
+until we are left with the final result.
+
+```python
+def forward_propagation(X, parameters):
+    """
+    Forward propagates through the network to get the resulting output node
+    """
+    
+    # Getting parameters
+    W1 = parameters['W1']
+    W2 = parameters['W2']
+    W3 = parameters['W3']
+    b1 = parameters['b1']
+    b2 = parameters['b2']
+    b3 = parameters['b3']
+    
+    Z1 = np.dot(W1, X) + b1
+    A1 = tanh(Z1)
+    Z2 = np.dot(W2, A1) + b2
+    A2 = tanh(Z2)
+    Z3 = np.dot(W3, A2) + b3
+    A3 = softmax(Z3)
+    
+    
+    cache = {
+        'Z1': Z1,
+        'A1': A1,
+        'Z2': Z2,
+        'A2': A2,
+        'Z3': Z3,
+        'A3': A3
+    }
+    
+    return A3, cache
+```
+
+You might be wondering why we are using `np.dot()` for matrix multiplications. Specified in the Numpy documentation, `np.dot()` is actually 
+matrix multiplications if both arrays are 2D. The reason why we are storing every layer's output in the `cache` dictionary is because 
+during backpropagation, we need these values to calculate the gradients for the parameters. If you are not yet familiar with 
+backpropagation, I suggest watching the 3Blue1Brown videos linked above. Next, I will go through the process of backpropagating through 
+these layers.
+
+# Backpropagation
+
+Just a little recap on backpropagation. The performance of the neural network is measured by a metric called the cost function, usually, the 
+bigger the cost value, the worse the model is. Therefore, we want our weights to move to the global minimum of this cost (or loss) function. 
+The gradient of a multivariable function points in the direction of greatest change, so if we want to minimize our cost function we need to 
+update our parameters like so:
+
+$$
+w_i = w_i - \frac{\partial L}{\partial w_i} \cdot \alpha
+$$
+
+$L$ is refering to our loss function (the cost function is just the average of the loss across all the training samples). Since we are 
+building a multiclass classifer, we will be using Categorical Cross Entropy Loss:
+
+$$
+L = -\sum_{k=0}^{c} (y_k \cdot log( \hat{y}_k ))
+$$
+
+$c$ is the number of classes we are predicting in our model. To get gradients for our weights in the final layer, we must use the chain rule:
+
+$$
+\frac{\partial L}{\partial W^{[L]}} = \frac{\partial L}{\partial A^{[L]}} \frac{\partial A^{[L]}}{\partial Z^{[L]}} \frac{\partial Z^{[L]}}{\partial W^{[L]}}
+$$
+
+The $[L]$ is refering to which layer we are currently talking about, with L being the last layer.
+
+## Softmax Derivative
+
+First, let's start with the derivation for $\frac{\partial A^{[L]}}{\partial Z^{[L]}}$. $a_i$ will represent the activation value at neuron 
+$i$ and $z_j$ will represent the value at neuron $j$ before the activation.
+
+$$
+\frac{\partial a_i}{\partial z_j} = \frac{\partial}{\partial z_j}(\frac{e^{z_i}}{\sum_{k=0}^{c} e^{z_k}})
+$$
+
+To derive this, we will use the quotient rule. Let $f(x) = e^{z_i}$ and $g(x) = \sum_{k=0}^{c} e^{z_k}$. By taking their derivatives 
+with respect to $z_j$, we get:
+
+$$
+\frac{\partial}{\partial z_j} (f(x)) = \begin{cases}
+  e^{z_i} &\text{if } i = j \\
+  0 &\text{if } i \neq j
+\end{cases}
+$$
+
+$$
+g(x) = e^{z_0} + e^{z_1} + \cdots + e^{z_j} + \cdots + e^{z_c} \\
+
+\frac{\partial}{\partial z_j} (g(x)) = e^{z_j}
+$$
+
+A quick reminder on the quotient rule:
+
+$$
+h'(x) = \frac{f'(x)g(x) - f(x)g'(x)}{(g(x))^2}
+$$
+
+For $i = j$, we get:
+
+$$
+\begin{darray}{rcl}
+\frac{\partial a_i}{\partial z_j} &=& \frac{e^{z_i}g(x) - e^{z_i}e^{z_j}}{(g(x))^2} \\[10pt]
+                                  &=& a_i - \frac{e^{z_i}}{g(x)} \cdot \frac{e^{z_j}}{g(x)} \\[10pt]
+                                  &=& a_i - a_i a_j \\[5pt]
+                                  &=& a_i \cdot (1 - a_j)
+\end{darray}
+$$
+
+For $i \neq j$, we get:
+
+$$
+\begin{darray}{rcl}
+\frac{\partial a_i}{\partial z_j} &=& \frac{0 - e^{z_i}e^{z_j}}{(g(x))^2} \\[10pt]
+                                  &=& -a_ia_j
+\end{darray}
+$$
+
+
+## Loss Derivative
+
+So we now have $\frac{\partial a_i}{z_j}$ and we will combine this with $\frac{\partial L}{\partial a_k}$ to get 
+$\frac{\partial L}{\partial z_i}$.
+
+I've pasted the loss function over again for convience:
+
+$$
+L = -\sum_{k=0}^{c} (y_k \cdot log( \hat{y}_k ))
+$$
+
+Let's do some calculus now, notice $\hat{y}_k = a_k$ because the activation layer feeds into the loss function. Also a side note, the $log$
+down below are natural logs.
+
+$$
+\begin{darray}{rcl}
+\frac{\partial L}{\partial z_i} &=& -\sum_{k=0}^{c} y_k \frac{\partial log(a_k)}{\partial a_k} \frac{\partial a_k}{\partial z_i} \\[10pt]
+                                &=& -\sum_{k=0}^{c} \frac{y_k}{a_k} \frac{\partial a_k}{\partial z_i} \\[10pt]
+                                &=& -(y_i(1-a_i) + \sum_{k=0, k \neq i}^{c} \frac{y_k}{a_k} \cdot (-a_ka_i)) \\[10pt]
+                                &=& -(y_i - y_ia_i - \sum_{k=0, k \neq i}^{c} \frac{y_k}{a_k} \cdot a_ka_i) \\[10pt]
+                                &=& -(y_i - \sum_{k=0}^{c}y_ka_i) \\[15pt]
+                                &=& -(y_i - a_i) \\[5pt]
+                                &=& a_i - y_i
+\end{darray}
+$$
+
+The reason I was able to reduce $\sum_{k=0}^{c}y_ka_i$ down to $a_i$ is because the sum of probabilities across all classes is one for our 
+case.
+
+Now, we know we can find $\frac{\partial L}{\partial z_i}$ with $a_i-y_i$, so to vectorize this, we simply subtract the two matrices: $A - Y$.
+
+## Backpropagating Through the Layers
+
+To get the $\frac{\partial L}{\partial W^{[L]}}$ with $L$ being the final layer, we need to find $\frac{\partial Z^{[L]}}{W^{[L]}}$ since 
+$\frac{\partial L}{\partial Z^{[L]}}$ is already found. Since $Z^{[L]} = W^{[L]}A^{[L-1]} + B^{[L]}$, 
+$\frac{\partial Z^{[L]}}{\partial W^{[L]}}$ is just equal to $A^{[L-1]}$. To vectorize this, we can do `np.dot(dZ3, A2.T)`. Remeber, this 
+gradient is summed across all $m$ samples in your batch, so you will need to multiply the result of this by $\frac{1}{m}$ to get the average.
+To find $\frac{\partial L}{\partial B^{[L]}}$, we do the same thing. Except, this time, $\frac{\partial Z^{[L]}}{\partial B^{[L]}} = 1$, 
+so it is actually just equal to $Z^{[L]}$. To vectorize this, we can do `np.sum(dZ3,axis=1,keepdims=True)`. `axis=1` for our specific case 
+is summing across the entire batch, so once again, remeber to take the average by multiplying this by $\frac{1}{m}$.
+
+With this, we are basically done. We just need to do one more thing, the chain rule from this layer: $Z^{[L]}$ to the previous layer: 
+$Z^{[L-1]}$. The only thing in between these two is the activation function. For our neural network, we are using `tanh()` activations 
+across both layers. As an exercise, feel free to derive the derivative by hand, but I have provided it down below:
+
+$$
+1 - tanh(x)^2
+$$
+
+Therefore, applying our chain rule:
+
+$$
+\frac{\partial L}{\partial Z^{[L-1]}} = \frac{\partial L}{\partial A^{[L-1]}} \cdot (1 - (A^{[L-1]})^2)
+$$
+
+To vectorize this, we can do `dZ2 = np.dot(W3.T,dZ3) * (1 - np.power(A2,2))`.
+
+You might ask, what about the rest? Well, if you take another look above, you'll realize the rest of the process is a simple repetition of 
+these operations that you just saw. Feel free to now go implement your own backpropagation function, but I have also provided my code 
+below:
+
+```python
+def backward_propagation(X, y, cache, parameters):
+    """
+    Backpropagates through network and gets the gradients for each parameter to perform gradient descent on
+    """
+    
+    m = X.shape[1]
+    
+    # Getting our parameters
+    W1 = parameters['W1']
+    W2 = parameters['W2']
+    W3 = parameters['W3']
+    b1 = parameters['b1']
+    b2 = parameters['b2']
+    b3 = parameters['b3']
+    
+    # Getting our results in each layer
+    Z1 = cache['Z1']
+    Z2 = cache['Z2']
+    Z3 = cache['Z3']
+    A1 = cache['A1']
+    A2 = cache['A2']
+    A3 = cache['A3']
+    
+    dZ3 = A3 - y
+    dW3 = 1 / m * np.dot(dZ3, A2.T)
+    db3 = 1 / m * np.sum(dZ3,axis=1,keepdims=True)
+    
+    dZ2 = np.dot(W3.T,dZ3) * (1 - np.power(A2,2))
+    dW2 = 1 / m * np.dot(dZ2, A1.T)
+    db2 = 1 / m * np.sum(dZ2, axis=1, keepdims=True)
+    
+    dZ1 = np.dot(W2.T, dZ2) * (1 - np.power(A1,2))
+    dW1 = 1 / m * np.dot(dZ1, X.T)
+    db1 = 1 / m * np.sum(dZ1, axis=1, keepdims=True)
+    
+    grad = {
+        'dW1': dW1,
+        'db1': db1,
+        'dW2': dW2,
+        'db2': db2,
+        'dW3': dW3,
+        'db3': db3,
+    }
+    
+    return grad
+```
+
+Remeber, after the backpropagation step, we need to update these parameters:
+
+```python
+def update_parameters(parameters, grads, learning_rate=0.001):
+    # Getting our parameters
+    W1 = parameters['W1']
+    W2 = parameters['W2']
+    W3 = parameters['W3']
+    b1 = parameters['b1']
+    b2 = parameters['b2']
+    b3 = parameters['b3']
+    
+    # Getting gradients
+    dW1 = grads['dW1']
+    db1 = grads['db1']
+    dW2 = grads['dW2']
+    db2 = grads['db2']
+    dW3 = grads['dW3']
+    db3 = grads['db3']
+    
+    W1 = W1 - dW1 * learning_rate
+    b1 = b1 - db1 * learning_rate
+    W2 = W2 - dW2 * learning_rate
+    b2 = b2 - db2 * learning_rate
+    W3 = W3 - dW3 * learning_rate
+    b3 = b3 - db3 * learning_rate
+    
+    parameters = {
+        'W1': W1,
+        'b1': b1,
+        'W2': W2,
+        'b2': b2,
+        'W3': W3,
+        'b3': b3
+    }
+    
+    return parameters    
+```
+
+# Final Model
+
+Putting all these steps together, we get the below function:
+
+```python
+def model(X, y, learning_rate, num_iterations = 150, print_cost=True):
+    # Initialize parameters
+    parameters = initialize_parameters(784, [16, 16, 10])
+    W1 = parameters['W1']
+    W2 = parameters['W2']
+    W3 = parameters['W3']
+    b1 = parameters['b1']
+    b2 = parameters['b2']
+    b3 = parameters['b3']
+    
+    # Loop (gradient descent)
+    for i in range(0, num_iterations):
+        if i > 75:
+            learning_rate = 0.1
+        
+        A3, cache = forward_propagation(X, parameters)
+        
+        cost = -np.mean(y * np.log(A3 + 1e-8))
+        
+        y_hat = np.argmax(A3, axis=0)
+        Y = np.argmax(y, axis=0)
+        accuracy = (y_hat == Y).mean()
+        
+        grads = backward_propagation(X, y, cache, parameters)
+        parameters = update_parameters(parameters, grads, learning_rate)
+        if print_cost and i % 10 == 0:
+            print ("Cost after iteration %i: %f Accuracy: %f" %(i, cost, accuracy * 100))
+    return parameters
+```
+
+Let's now train our network. I will be loading the MNIST dataset with the tensorflow library. We also need to implement a `one_hot_encoding` 
+function because we need a 10-dimensional vector for our loss function.
+
+```python
+from tensorflow.keras.datasets import mnist
+
+def one_hot(a, num_classes):
+  return np.squeeze(np.eye(num_classes)[a.reshape(-1)])
+
+# Load dataset
+(train_X, train_y), (test_X, test_y) = mnist.load_data()
+
+print('X_train: ' + str(train_X.shape))
+print('Y_train: ' + str(train_y.shape))
+print('X_test:  '  + str(test_X.shape))
+print('Y_test:  '  + str(test_y.shape))
+
+# Flatten images and one_hot_encode
+train_X = train_X.reshape(60000, 784).T
+train_X = train_X / 255
+train_y = one_hot(train_y, 10).T
+
+# Running the network
+parameters = model(train_X, train_y, 1)
+```
+
+My final output:
+
+```
+Cost after iteration 0: 0.230083 Accuracy: 13.260000
+Cost after iteration 10: 0.204155 Accuracy: 40.781667
+Cost after iteration 20: 0.153983 Accuracy: 47.766667
+Cost after iteration 30: 0.118734 Accuracy: 67.136667
+Cost after iteration 40: 0.096660 Accuracy: 73.488333
+Cost after iteration 50: 0.083073 Accuracy: 77.815000
+Cost after iteration 60: 0.072998 Accuracy: 80.786667
+Cost after iteration 70: 0.115302 Accuracy: 60.456667
+Cost after iteration 80: 0.061357 Accuracy: 84.006667
+Cost after iteration 90: 0.060022 Accuracy: 84.413333
+Cost after iteration 100: 0.058777 Accuracy: 84.738333
+Cost after iteration 110: 0.057598 Accuracy: 85.070000
+Cost after iteration 120: 0.056478 Accuracy: 85.361667
+Cost after iteration 130: 0.055412 Accuracy: 85.630000
+Cost after iteration 140: 0.054397 Accuracy: 85.903333
+```
+
+Since the network is not very large, it is able to converge still with a large learning rate.
+
+To test on one of the test images:
+
+```python
+from matplotlib import pyplot as plt
+
+# This is on jupyter notebook btw
+test_X.reshape(10000, 784)
+test_X = test_X / 255
+im = test_X[0]
+pixels = im.reshape((28, 28))
+plt.imshow(pixels, cmap='gray')
+plt.show() # an image of 7
+
+A3, _ = forward_propagation(im.reshape(784, 1), parameters)
+
+y_hat = np.argmax(A3, axis=0)
+y_hat # output: array([7])
+```
+
+# Conclusion
+
+And there you have it, you just built a neural network that classifies the MNIST dataset from scratch! If it was a lot of information, make 
+sure to try to do some of these derivations yourself on paper to solidify your foundation! Hopefully, you enjoyed this post, it definetly 
+took me hours to fully format and create everything. Good luck on your neural network journey, and see you next time!
