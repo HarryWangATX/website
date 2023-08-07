@@ -25,7 +25,7 @@
     "mailchimp": "^1.2.1",
     "mdx-bundler": "^8.0.0",
     "next": "12.0.9",
-    "next-themes": "^0.0.14",
+    "next-themes": "^0.2.1",
     "postcss": "^8.4.24",
     "preact": "^10.16.0",
     "react": "17.0.2",
